@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Basketball Performance Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
+        .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; }
+        .nav-btn.active { background-color: #238636; border-color: #3fb950; color: white; font-weight: bold; }
+        .table-wrapper { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
+        th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
+        td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; }
+        tr:hover { background-color: #1c2128; }
+        .name-col { color: #58a6ff; font-weight: bold; text-align: left; padding-left: 16px; min-width: 110px; }
+        .pts-col { color: #ffffff; font-weight: 800; font-size: 0.95rem; }
+        .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
+        /* PER 등급별 스타일 */
+        .grade-best { color: #f2ca33; font-weight: 900; text-decoration: underline; }
+        .grade-good { color: #34d399; font-weight: bold; }
+        .grade-normal { color: #e2e8f0; }
+        .grade-effort { color: #4b5563; font-style: italic; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-[1450px] mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">🏀 TEAM PERFORMANCE ANALYTICS</h1>
+                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase">Loading View...</p>
+            </div>
+            
+            <div class="flex bg-[#161b22] p-1 rounded-lg border border-[#30363d]">
+                <button onclick="loadQuarter('TOTAL')" class="nav-btn active px-5 py-2 rounded-md text-sm mr-1">전체</button>
+                <button onclick="loadQuarter('1Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">1Q</button>
+                <button onclick="loadQuarter('2Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">2Q</button>
+                <button onclick="loadQuarter('3Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">3Q</button>
+                <button onclick="loadQuarter('4Q')" class="nav-btn px-5 py-2 rounded-md text-sm">4Q</button>
+            </div>
+        </div>
+        
+        <div class="table-wrapper overflow-x-auto shadow-2xl">
+            <table class="w-full text-center border-collapse min-w-[1300px]">
+                <thead>
+                    <tr>
+                        <th class="text-left pl-4">이름</th>
+                        <th class="text-orange-400">PF</th>
+                        <th>MIN</th>
+                        <th class="text-white">PTS</th>
+                        <th>FG</th>
+                        <th>FG%</th>
+                        <th>3P</th>
+                        <th>3P%</th>
+                        <th>FT</th>
+                        <th>FT%</th>
+                        <th>OR</th>
+                        <th>DR</th>
+                        <th>REB</th>
+                        <th>AST</th>
+                        <th>STL</th>
+                        <th>BLK</th>
+                        <th>TO</th>
+                        <th class="text-yellow-400 font-bold border-l border-slate-700">PER (효율 등급)</th>
+                    </tr>
+                </thead>
+                <tbody id="stats-body">
+                    <tr><td colspan="18" class="py-32 text-slate-500 animate-pulse">데이터를 실시간으로 분석하는 중입니다...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="mt-4 text-xs text-slate-500 text-center uppercase tracking-widest">Calculated by Advanced Basketball Efficiency Formula</p>
+    </div>
+
+    <script>
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwt9Ij2ggj1ZszfCHT7w33P2YQEj7nWHbCYEiZixGLPqppqn0ukfBc0y3b3xP11KkUQ/exec";
+
+        window.onload = () => loadQuarter('TOTAL');
+
+        async function loadQuarter(qName) {
+            updateButtonUI(qName);
+            document.getElementById('current-view-title').innerText = `Viewing: ${qName} Statistics`;
+            
+            const tbody = document.getElementById('stats-body');
+            tbody.innerHTML = '<tr><td colspan="18" class="py-32 text-slate-500">불러오는 중...</td></tr>';
+
+            try {
+                const targetUrl = `${BASE_API_URL}?q=${qName}`;
+                const response = await fetch(targetUrl);
+                const data = await response.json();
+                
+                tbody.innerHTML = '';
+
+                data.forEach(p => {
+                    const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
+                    
+                    const fgRate = getRate(p.FGM, p.FGA);
+                    const tpRate = getRate(p.TPM, p.TPA);
+                    const ftRate = getRate(p.FTM, p.FTA);
+                    
+                    // --- [PER 및 등급 계산 로직] ---
+                    const positiveStats = (p.PTS || 0) + (p.REB || 0) + (p.AST || 0) + (p.STL || 0) + (p.BLK || 0);
+                    const fgMiss = (p.FGA || 0) - (p.FGM || 0);
+                    const ftMiss = (p.FTA || 0) - (p.FTM || 0);
+                    const negativeStats = fgMiss + ftMiss + (p.TO || 0);
+                    const calculatedPER = positiveStats - negativeStats;
+                    
+                    let grade = "";
+                    let gradeStyle = "";
+                    if (calculatedPER >= 20) { grade = "최고"; gradeStyle = "grade-best"; }
+                    else if (calculatedPER >= 15) { grade = "준수"; gradeStyle = "grade-good"; }
+                    else if (calculatedPER >= 10) { grade = "1인분"; gradeStyle = "grade-normal"; }
+                    else { grade = "노력"; gradeStyle = "grade-effort"; }
+                    // --- [로직 끝] ---
+
+                    const foulClass = p.PF >= 4 ? 'foul-danger' : '';
+
+                    const row = `
+                        <tr>
+                            <td class="name-col">${p.Name}</td>
+                            <td class="px-2 py-4 ${foulClass}">${p.PF || 0}</td>
+                            <td class="text-slate-500 text-xs font-mono">${p.MIN || '--:--'}</td>
+                            <td class="pts-col">${p.PTS || 0}</td>
+                            <td class="text-slate-300 font-mono text-xs">${p.FGM || 0}/${p.FGA || 0}</td>
+                            <td class="text-xs text-slate-500">${fgRate}%</td>
+                            <td class="text-slate-300 font-mono text-xs">${p.TPM || 0}/${p.TPA || 0}</td>
+                            <td class="text-xs text-slate-500">${tpRate}%</td>
+                            <td class="text-slate-300 font-mono text-xs">${p.FTM || 0}/${p.FTA || 0}</td>
+                            <td class="text-xs text-slate-500">${ftRate}%</td>
+                            <td>${p.OR || 0}</td>
+                            <td>${p.DR || 0}</td>
+                            <td class="font-bold text-slate-200">${p.REB || 0}</td>
+                            <td>${p.AST || 0}</td>
+                            <td>${p.STL || 0}</td>
+                            <td>${p.BLK || 0}</td>
+                            <td>${p.TO || 0}</td>
+                            <td class="border-l border-[#30363d] text-center px-2">
+                                <span class="font-black text-base ${gradeStyle}">${calculatedPER.toFixed(1)}</span>
+                                <span class="text-[10px] ${gradeStyle} ml-1 uppercase tracking-tighter">(${grade})</span>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="18" class="py-10 text-red-500">API 연결에 실패했습니다.</td></tr>';
+            }
+        }
+
+        function updateButtonUI(activeQ) {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.innerText === activeQ || (btn.innerText === '전체' && activeQ === 'TOTAL')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
