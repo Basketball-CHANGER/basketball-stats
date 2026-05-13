@@ -18,6 +18,10 @@
         th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 12px 4px; border-bottom: 2px solid #30363d; text-align: center; }
         td { padding: 10px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
         .name-col { color: #58a6ff; font-weight: bold; width: 130px; min-width: 130px; }
+        
+        /* 추가된 부분: 파울 강조 스타일 */
+        .foul-danger { color: #f85149 !important; font-weight: bold; background: rgba(248, 81, 73, 0.1); }
+        
         .stats-dashboard { margin-top: 24px; border-radius: 16px; padding: 24px; border: 1px solid #30363d; }
         .home-dashboard { background: linear-gradient(90deg, #161b22 0%, #111827 100%); border-left: 4px solid #3b82f6; }
         .away-dashboard { background: linear-gradient(90deg, #1c1111 0%, #161b22 100%); border-left: 4px solid #ef4444; }
@@ -110,9 +114,9 @@
             <table class="w-full min-w-[1200px]">
                 <thead>
                     <tr>
-                        <th>No</th><th class="name-col">NAME</th><th>PF</th><th>MIN</th><th>PTS</th>
+                        <th>No</th><th class="name-col">NAME</th><th class="text-orange-400">PF</th><th>MIN</th><th>PTS</th>
                         <th>2P M/A</th><th>2P%</th><th>3P M/A</th><th>3P%</th><th>FT M/A</th><th>FT%</th>
-                        <th>OR</th><th>DR</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PER</th><th>GRADE</th>
+                        <th>OR</th><th>DR</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th class="text-yellow-500">PER</th><th>GRADE</th>
                     </tr>
                 </thead>
                 <tbody id="stats-body"></tbody>
@@ -181,7 +185,10 @@
         }
 
         function renderStats(data) {
-            if(!data) return;
+            if(!data || data.error) {
+                alert(data ? data.error : "데이터 로드 실패");
+                return;
+            }
             const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
             document.getElementById('file-name-tag').innerText = data.fileName;
             document.getElementById('current-q-label').innerText = currentQ;
