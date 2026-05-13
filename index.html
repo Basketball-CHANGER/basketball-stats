@@ -16,17 +16,14 @@
         }
         .table-wrapper { margin-top: 30px; background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; overflow: hidden; }
         
-        /* 헤더 및 셀 간격 조정 */
         th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
         td { padding: 10px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
         
-        /* 이름 열 스타일 수정 (가운데 정렬 반영) */
         .name-col { 
             color: #58a6ff; 
             font-weight: bold; 
-            text-align: center !important; /* 왼쪽 정렬에서 가운데 정렬로 변경 */
-            padding-left: 0 !important; /* 왼쪽 여백 제거 */
-            width: 130px; /* 너비 살짝 조정 */
+            text-align: center !important;
+            width: 130px;
             min-width: 130px;
         }
         
@@ -43,42 +40,53 @@
 
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .animate-bonus { animation: pulse-red 1s infinite; color: #f85149 !important; }
+
+        /* 모바일 대응 미디어 쿼리 추가 */
+        @media (max-width: 768px) {
+            .scoreboard-grid { grid-template-columns: 1fr !important; gap: 2rem; }
+            .scoreboard-vs { border-x: none !important; border-y: 1px solid #30363d; padding: 1rem 0; }
+            .dashboard-header { flex-direction: column; align-items: flex-start !important; gap: 1.5rem; }
+            .dashboard-stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 1rem; width: 100%; }
+            .dashboard-shoot-grid { grid-template-columns: 1fr !important; }
+            .header-top { flex-direction: column; gap: 1rem; align-items: flex-start !important; }
+            .score-text { font-size: 5rem !important; }
+        }
     </style>
 </head>
 <body class="p-4 md:p-10">
     <div class="max-w-[1440px] mx-auto">
         <!-- 헤더 -->
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex justify-between items-center mb-8 header-top">
             <div class="flex items-center gap-4">
                 <h1 class="text-4xl font-black text-white tracking-tighter italic uppercase">Changer</h1>
                 <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-xs font-bold px-4 py-1.5 rounded-full border border-blue-800/50">SYNCING...</span>
             </div>
-            <div class="flex bg-[#161b22] p-1.5 rounded-xl border border-[#30363d]">
-                <button onclick="loadData('TOTAL')" class="q-btn active px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">전체</button>
-                <button onclick="loadData('1Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">1Q</button>
-                <button onclick="loadData('2Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">2Q</button>
-                <button onclick="loadData('3Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">3Q</button>
-                <button onclick="loadData('4Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm transition-all">4Q</button>
+            <div class="flex bg-[#161b22] p-1.5 rounded-xl border border-[#30363d] overflow-x-auto">
+                <button onclick="loadData('TOTAL')" class="q-btn active px-4 md:px-6 py-2.5 rounded-lg text-sm mr-1 transition-all whitespace-nowrap">전체</button>
+                <button onclick="loadData('1Q')" class="q-btn px-4 md:px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">1Q</button>
+                <button onclick="loadData('2Q')" class="q-btn px-4 md:px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">2Q</button>
+                <button onclick="loadData('3Q')" class="q-btn px-4 md:px-6 py-2.5 rounded-lg text-sm mr-1 transition-all">3Q</button>
+                <button onclick="loadData('4Q')" class="q-btn px-4 md:px-6 py-2.5 rounded-lg text-sm transition-all">4Q</button>
             </div>
         </div>
 
         <!-- 상단 스코어보드 -->
-        <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-8">
+        <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-6 md:p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-8 scoreboard-grid">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-sm mb-2 tracking-widest uppercase">Home</p>
-                <p id="our-score" class="text-8xl font-black text-white mb-4">0</p>
+                <p id="our-score" class="text-7xl md:text-8xl font-black text-white mb-4 score-text">0</p>
                 <div class="flex justify-center items-baseline gap-3">
                     <span class="text-slate-500 text-xl font-black tracking-widest">TF</span>
                     <span id="our-foul-val" class="text-xl font-black text-white">0</span>
                 </div>
             </div>
-            <div class="text-center border-x border-slate-800/50 px-4">
+            <div class="text-center border-x border-slate-800/50 px-4 scoreboard-vs">
                 <p id="current-q-label" class="text-yellow-500 text-4xl font-black italic mb-2 tracking-tighter uppercase">Total</p>
                 <p class="text-slate-600 text-xs font-bold tracking-[0.5em]">VS</p>
             </div>
             <div class="text-center">
                 <p id="opp-name-display" class="text-red-400 font-black text-sm mb-2 tracking-widest uppercase">Away</p>
-                <p id="opp-score" class="text-8xl font-black text-white mb-4">0</p>
+                <p id="opp-score" class="text-7xl md:text-8xl font-black text-white mb-4 score-text">0</p>
                 <div class="flex justify-center items-baseline gap-3">
                     <span class="text-slate-500 text-xl font-black tracking-widest">TF</span>
                     <span id="opp-foul-val" class="text-xl font-black text-white">0</span>
@@ -88,29 +96,28 @@
 
         <!-- 우리 팀 요약 대시보드 -->
         <div class="stats-dashboard home-dashboard mb-6">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 dashboard-header">
                 <div class="flex items-center gap-4">
                     <span class="text-blue-500 font-black text-2xl italic uppercase">Changer Stats</span>
-                    <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Team Summary</span>
                 </div>
-                <div class="flex gap-10 text-center">
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="home-f-reb" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="home-f-ast" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="home-f-stl" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">BLK</p><p id="home-f-blk" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-blue-900 text-[10px] uppercase font-bold mb-1">TO</p><p id="home-f-to" class="text-blue-400 font-black text-2xl">0</p></div>
+                <div class="grid grid-cols-5 gap-4 md:gap-10 text-center dashboard-stats-grid">
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="home-f-reb" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="home-f-ast" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="home-f-stl" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">BLK</p><p id="home-f-blk" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-blue-900 text-[10px] uppercase font-bold mb-1">TO</p><p id="home-f-to" class="text-blue-400 font-black text-xl md:text-2xl">0</p></div>
                 </div>
             </div>
-            <div class="grid grid-cols-3 gap-4 border-t border-slate-800/50 pt-6">
-                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center border border-blue-900/10">
+            <div class="grid grid-cols-3 gap-4 border-t border-slate-800/50 pt-6 dashboard-shoot-grid">
+                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">2P M/A</p><p id="home-f-2pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">2P%</p><p id="home-f-2p-pct" class="text-blue-400 font-black text-2xl">0%</p></div>
                 </div>
-                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center border border-blue-900/10">
+                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">3P M/A</p><p id="home-f-3pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">3P%</p><p id="home-f-3p-pct" class="text-blue-300 font-black text-2xl">0%</p></div>
                 </div>
-                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center border border-blue-900/10">
+                <div class="bg-blue-950/20 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">FT M/A</p><p id="home-f-ftm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">FT%</p><p id="home-f-ft-pct" class="text-emerald-400 font-black text-2xl">0%</p></div>
                 </div>
@@ -138,29 +145,28 @@
 
         <!-- 상대팀 요약 대시보드 -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 dashboard-header">
                 <div class="flex items-center gap-4">
                     <span class="text-red-500 font-black text-2xl italic uppercase"><span id="opp-footer-name">Away</span> Stats</span>
-                    <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Team Summary</span>
                 </div>
-                <div class="flex gap-10 text-center">
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="opp-f-reb" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="opp-f-ast" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="opp-f-stl" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">BLK</p><p id="opp-f-blk" class="text-white font-black text-2xl">0</p></div>
-                    <div><p class="text-red-900 text-[10px] uppercase font-bold mb-1 text-red-900">TO</p><p id="opp-f-to" class="text-red-600 font-black text-2xl">0</p></div>
+                <div class="grid grid-cols-5 gap-4 md:gap-10 text-center dashboard-stats-grid">
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="opp-f-reb" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="opp-f-ast" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="opp-f-stl" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">BLK</p><p id="opp-f-blk" class="text-white font-black text-xl md:text-2xl">0</p></div>
+                    <div><p class="text-red-900 text-[10px] uppercase font-bold mb-1">TO</p><p id="opp-f-to" class="text-red-600 font-black text-xl md:text-2xl">0</p></div>
                 </div>
             </div>
-            <div class="grid grid-cols-3 gap-4 border-t border-slate-800/50 pt-6">
-                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center border border-red-900/10">
+            <div class="grid grid-cols-3 gap-4 border-t border-slate-800/50 pt-6 dashboard-shoot-grid">
+                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">2P M/A</p><p id="opp-f-2pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">2P%</p><p id="opp-f-2p-pct" class="text-orange-400 font-black text-2xl">0%</p></div>
                 </div>
-                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center border border-red-900/10">
+                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">3P M/A</p><p id="opp-f-3pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">3P%</p><p id="opp-f-3p-pct" class="text-yellow-500 font-black text-2xl">0%</p></div>
                 </div>
-                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center border border-red-900/10">
+                <div class="bg-red-950/10 p-4 rounded-xl flex justify-between items-center">
                     <div><p class="text-slate-500 text-[10px] font-bold uppercase">FT M/A</p><p id="opp-f-ftm" class="text-white font-mono text-lg font-bold">0/0</p></div>
                     <div class="text-right"><p class="text-slate-500 text-[10px] font-bold uppercase">FT%</p><p id="opp-f-ft-pct" class="text-emerald-400 font-black text-2xl">0%</p></div>
                 </div>
@@ -189,7 +195,6 @@
 
                 document.getElementById('match-title-display').innerText = data.matchTitle || "NO MATCH INFO";
 
-                // --- 우리 팀 합산 및 대시보드 ---
                 const h = {
                     pts: data.stats.reduce((acc, p) => acc + p.PTS, 0),
                     fl: data.stats.reduce((acc, p) => acc + p.PF, 0),
@@ -222,7 +227,6 @@
                 document.getElementById('home-f-ftm').innerText = `${h.ftm}/${h.fta}`;
                 document.getElementById('home-f-ft-pct').innerText = `${getRate(h.ftm, h.fta)}%`;
 
-                // --- 상대 팀 데이터 ---
                 if(data.opp) {
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
@@ -264,7 +268,7 @@
                     </tr>
                 `).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold">연결 실패 (API URL을 확인하세요)</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold">연결 실패</td></tr>';
             }
         }
     </script>
