@@ -13,8 +13,20 @@
         th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
         td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; }
         tr:hover { background-color: #1c2128; }
-        .name-col { color: #58a6ff; font-weight: bold; text-align: left; padding-left: 16px; min-width: 120px; }
-        .pts-col { color: #ffffff; font-weight: 800; font-size: 0.95rem; }
+        
+        /* 이름 열 너비 최적화: 텍스트 길이에 맞춰지도록 최소 너비 조정 */
+        .name-col { 
+            color: #58a6ff; 
+            font-weight: bold; 
+            text-align: left; 
+            padding-left: 12px; 
+            white-space: nowrap; /* 이름이 줄바꿈되지 않게 설정 */
+            width: 1%; /* 테이블 내에서 내용물 크기만큼만 차지하도록 유도 */
+        }
+        
+        /* PTS 폰트 크기 통일: 다른 td(0.8rem)와 동일하게 조정 */
+        .pts-col { color: #ffffff; font-weight: 800; font-size: 0.8rem; }
+        
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
         
         /* PER 등급 스타일 */
@@ -49,14 +61,14 @@
         
         <!-- 메인 테이블 -->
         <div class="table-wrapper overflow-x-auto shadow-2xl">
-            <table class="w-full text-center border-collapse min-w-[1400px]">
+            <table class="w-full text-center border-collapse min-w-[1300px]">
                 <thead>
                     <tr>
-                        <th class="text-left pl-4 w-16">No</th>
-                        <th class="text-left pl-4">NAME</th>
+                        <th class="text-left pl-4 w-12">No</th>
+                        <th class="text-left pl-3">NAME</th>
                         <th class="text-orange-400">PF</th>
                         <th>MIN</th>
-                        <th class="text-white text-lg">PTS</th>
+                        <th class="text-white">PTS</th>
                         <th>2P M/A</th>
                         <th>2P%</th>
                         <th>3P M/A</th>
@@ -82,8 +94,8 @@
     </div>
 
     <script>
-        // 여기에 본인의 새 배포 URL을 넣으세요
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbz_rcQTBmqIxxJWzxPIG-HoT2M96GcT8SoVQkIZpci1dt5BJBD7Yz-hbggMdWuw7w6q/exec";
+        // 본인의 배포 URL이 동일하다면 그대로 두시면 됩니다.
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwt9Ij2ggj1ZszfCHT7w33P2YQEj7nWHbCYEiZixGLPqppqn0ukfBc0y3b3xP11KkUQ/exec";
 
         window.onload = () => loadQuarter('TOTAL');
 
@@ -98,7 +110,6 @@
                 const response = await fetch(`${BASE_API_URL}?q=${qName}`);
                 const data = await response.json();
                 
-                // 팀파울 업데이트
                 const teamFouls = data.reduce((acc, p) => acc + (parseInt(p.PF) || 0), 0);
                 updateTeamFoulUI(teamFouls, qName);
 
@@ -122,7 +133,7 @@
                             <td class="name-col">${p.Name}</td>
                             <td class="${foulClass} font-bold">${p.PF || 0}</td>
                             <td class="text-slate-500 font-mono">${p.MIN || 0}</td>
-                            <td class="pts-col text-base">${p.PTS || 0}</td>
+                            <td class="pts-col">${p.PTS || 0}</td>
                             <td class="text-slate-300 font-mono">${p.FGM || 0}/${p.FGA || 0}</td>
                             <td class="text-xs text-slate-500">${getRate(p.FGM, p.FGA)}%</td>
                             <td class="text-slate-300 font-mono">${p.TPM || 0}/${p.TPA || 0}</td>
@@ -145,7 +156,7 @@
                     tbody.innerHTML += row;
                 });
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500 text-center">데이터를 불러오지 못했습니다. URL을 확인하세요.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500 text-center">데이터를 불러오지 못했습니다.</td></tr>';
             }
         }
 
