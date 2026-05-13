@@ -6,61 +6,73 @@
     <title>CHANGER Stats Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
         .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; color: #8b949e; }
         .nav-btn.active { background-color: #238636; border-color: #3fb950; color: white; font-weight: bold; }
-        .table-wrapper { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
-        th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; text-align: center !important; }
-        td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; text-align: center !important; }
-        .name-col { color: #58a6ff; font-weight: bold; width: 80px; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
-        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .animate-bonus { animation: pulse-red 1s infinite; }
+        .table-wrapper { background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; margin-top: 40px; }
+        th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 14px 4px; border-bottom: 2px solid #30363d; text-align: center !important; }
+        td { padding: 14px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center !important; }
+        .name-col { color: #58a6ff; font-weight: bold; text-align: left !important; padding-left: 20px !important; }
+        .pts-col { color: #ffffff; font-weight: 800; }
+        .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.15); border-radius: 6px; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .animate-bonus { animation: pulse-red 1s infinite; color: #f85149 !important; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-[1400px] mx-auto">
-        <!-- 상단 헤더: CHANGER + 경기 명칭(U2) -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+<body class="p-4 md:p-10">
+    <div class="max-w-[1440px] mx-auto">
+        <!-- 헤더 -->
+        <div class="flex justify-between items-center mb-10">
             <div class="flex items-center gap-4">
-                <h1 class="text-3xl font-black text-white tracking-tighter">🏀 CHANGER</h1>
-                <span id="match-title-display" class="bg-blue-900/30 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-md border border-blue-800/50 tracking-tight italic">연결 중...</span>
+                <h1 class="text-4xl font-black text-white tracking-tighter italic">CHANGER</h1>
+                <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-xs font-bold px-4 py-1.5 rounded-full border border-blue-800/50">CONNECTING...</span>
             </div>
-            
-            <div class="flex bg-[#161b22] p-1 rounded-lg border border-[#30363d]">
-                <button onclick="loadData('TOTAL')" class="q-btn active px-6 py-2 rounded-md text-sm mr-1">전체</button>
-                <button onclick="loadData('1Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">1Q</button>
-                <button onclick="loadData('2Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">2Q</button>
-                <button onclick="loadData('3Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">3Q</button>
-                <button onclick="loadData('4Q')" class="q-btn px-6 py-2 rounded-md text-sm">4Q</button>
+            <div class="flex bg-[#161b22] p-1.5 rounded-xl border border-[#30363d]">
+                <button onclick="loadData('TOTAL')" class="q-btn active px-6 py-2.5 rounded-lg text-sm mr-1">전체</button>
+                <button onclick="loadData('1Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1">1Q</button>
+                <button onclick="loadData('2Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1">2Q</button>
+                <button onclick="loadData('3Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm mr-1">3Q</button>
+                <button onclick="loadData('4Q')" class="q-btn px-6 py-2.5 rounded-lg text-sm">4Q</button>
             </div>
         </div>
 
-        <!-- 실시간 스코어보드 -->
-        <div class="grid grid-cols-3 gap-4 mb-10 bg-[#161b22] p-8 rounded-3xl border border-[#30363d] items-center shadow-2xl relative overflow-hidden">
+        <!-- 스코어보드 -->
+        <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center relative overflow-hidden">
+            <!-- HOME (CHANGER) -->
             <div class="text-center">
-                <p class="text-blue-400 font-bold text-xs mb-2 tracking-widest uppercase">Home</p>
-                <p id="our-score" class="text-6xl font-black text-white">0</p>
-                <p id="our-foul-label" class="text-[10px] text-slate-500 mt-3 font-mono">TF: 0</p>
+                <p class="text-blue-400 font-black text-sm mb-2 tracking-widest">HOME</p>
+                <p id="our-score" class="text-7xl font-black text-white mb-4">0</p>
+                <div id="our-foul-box" class="inline-block px-4 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="text-slate-500 text-xs font-bold mr-2">TF</span>
+                    <span id="our-foul-val" class="text-xl font-black text-white">0</span>
+                </div>
             </div>
-            <div class="text-center border-x border-slate-800">
-                <p id="current-q-label" class="text-yellow-500 text-xl font-black italic tracking-tighter">TOTAL</p>
-                <div class="w-8 h-[1px] bg-slate-700 mx-auto my-3"></div>
-                <p class="text-slate-500 text-[10px] font-bold tracking-[0.2em]">VS</p>
+
+            <!-- QUARTER INFO -->
+            <div class="text-center border-x border-slate-800/50 px-4">
+                <p id="current-q-label" class="text-yellow-500 text-3xl font-black italic mb-2 tracking-tighter">TOTAL</p>
+                <p class="text-slate-600 text-xs font-bold tracking-[0.4em]">VS</p>
             </div>
+
+            <!-- AWAY (OPPONENT) -->
             <div class="text-center">
-                <p id="opp-name-display" class="text-red-400 font-bold text-xs mb-2 tracking-widest uppercase">Away</p>
-                <p id="opp-score" class="text-6xl font-black text-white">0</p>
-                <p id="opp-foul-label" class="text-[10px] text-slate-500 mt-3 font-mono">TF: 0</p>
+                <p id="opp-name-display" class="text-red-400 font-black text-sm mb-2 tracking-widest uppercase">AWAY</p>
+                <p id="opp-score" class="text-7xl font-black text-white mb-4">0</p>
+                <div id="opp-foul-box" class="inline-block px-4 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
+                    <span class="text-slate-500 text-xs font-bold mr-2">TF</span>
+                    <span id="opp-foul-val" class="text-xl font-black text-white">0</span>
+                </div>
+                <!-- 상대팀 요약 정보 추가 -->
+                <div id="opp-summary" class="mt-4 text-[10px] text-slate-500 font-medium flex justify-center gap-3"></div>
             </div>
         </div>
-        
-        <!-- 데이터 테이블 -->
+
+        <!-- 테이블 (위 스코어보드와 간격 확보) -->
         <div class="table-wrapper overflow-x-auto shadow-2xl">
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
                     <tr>
-                        <th class="w-10">No</th><th class="w-24 text-left px-4">NAME</th><th class="text-orange-400">PF</th><th>MIN</th><th class="text-white">PTS</th>
+                        <th class="w-12">No</th><th class="name-col">NAME</th><th class="text-orange-400">PF</th><th>MIN</th><th class="text-white">PTS</th>
                         <th>2P M/A</th><th>2P%</th><th>3P M/A</th><th>3P%</th><th>FT M/A</th><th>FT%</th>
                         <th>OR</th><th>DR</th><th class="text-slate-200">REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th>
                         <th class="text-yellow-400 font-bold border-l border-slate-700">PER</th>
@@ -72,52 +84,56 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbygON5pixtXTne7NDdxdfr_hPRzePCMNw4xe3qEJsPEyH0P4gB5wm6Q3N3Bn8KZKedg/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzzlf7wVDxnC9Q087PxDJ7LKEeoDPahMNMjeNQs6cHILNDpffDblUwDubWzEjNdg6rP/exec";
 
         window.onload = () => loadData('TOTAL');
 
         async function loadData(q) {
-            // 버튼 UI 업데이트
-            document.querySelectorAll('.q-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText === q || (btn.innerText === '전체' && q === 'TOTAL'));
-            });
+            document.querySelectorAll('.q-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === q || (btn.innerText === '전체' && q === 'TOTAL')));
             document.getElementById('current-q-label').innerText = q;
 
             const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-slate-500 animate-pulse text-center">데이터를 동기화 중입니다...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="19" class="py-32 text-slate-500 animate-pulse text-center">SYNCING DATA...</td></tr>';
 
             try {
                 const response = await fetch(`${BASE_API_URL}?q=${q}`);
                 const data = await response.json();
 
-                // 1. 경기 제목 (U2 셀 값) 업데이트
-                document.getElementById('match-title-display').innerText = data.matchTitle || "No Title";
+                document.getElementById('match-title-display').innerText = data.matchTitle || "NO TITLE";
 
-                // 2. 우리팀 스코어 및 팀파울
-                const ourScore = data.stats.reduce((acc, p) => acc + (parseInt(p.PTS) || 0), 0);
-                const ourFouls = data.stats.reduce((acc, p) => acc + (parseInt(p.PF) || 0), 0);
+                // CHANGER 스코어보드
+                const ourScore = data.stats.reduce((acc, p) => acc + (p.PTS || 0), 0);
+                const ourFouls = data.stats.reduce((acc, p) => acc + (p.PF || 0), 0);
                 document.getElementById('our-score').innerText = ourScore;
-                document.getElementById('our-foul-label').innerText = `TF: ${ourFouls}`;
-                document.getElementById('our-foul-label').className = ourFouls >= 5 ? "text-[10px] text-red-500 mt-3 font-mono font-bold animate-bonus" : "text-[10px] text-slate-500 mt-3 font-mono";
+                document.getElementById('our-foul-val').innerText = ourFouls;
+                document.getElementById('our-foul-val').className = ourFouls >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
 
-                // 3. 상대팀 데이터 반영
-                document.getElementById('opp-name-display').innerText = data.opp.name || "Away";
-                document.getElementById('opp-score').innerText = data.opp.pts || 0;
-                document.getElementById('opp-foul-label').innerText = `TF: ${data.opp.tf || 0}`;
-                document.getElementById('opp-foul-label').className = (data.opp.tf || 0) >= 5 ? "text-[10px] text-red-500 mt-3 font-mono font-bold animate-bonus" : "text-[10px] text-slate-500 mt-3 font-mono";
+                // 상대팀 스코어보드
+                if(data.opp) {
+                    document.getElementById('opp-name-display').innerText = data.opp.name;
+                    document.getElementById('opp-score').innerText = data.opp.pts;
+                    document.getElementById('opp-foul-val').innerText = data.opp.tf;
+                    document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
+                    
+                    // 상대팀 상세 기록 노출
+                    document.getElementById('opp-summary').innerHTML = `
+                        <span>REB <b class="text-slate-300">${data.opp.reb}</b></span>
+                        <span>STL <b class="text-slate-300">${data.opp.stl}</b></span>
+                        <span>BLK <b class="text-slate-300">${data.opp.blk}</b></span>
+                        <span>TO <b class="text-red-900">${data.opp.to}</b></span>
+                    `;
+                }
 
-                // 4. 테이블 렌더링
+                // 테이블 렌더링
                 tbody.innerHTML = data.stats.map(p => {
                     const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
-                    const rowPER = parseFloat(p.PER || 0);
-                    const perfStyle = rowPER >= 15 ? "text-green-400 font-bold" : "text-slate-400";
                     return `
                         <tr>
-                            <td class="text-slate-500 font-mono">${p.No || '-'}</td>
-                            <td class="name-col text-left px-4">${p.Name}</td>
-                            <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF || 0}</td>
-                            <td class="text-slate-500 font-mono text-[11px]">${p.MIN || '-'}</td>
-                            <td class="pts-col text-white">${p.PTS || 0}</td>
+                            <td class="text-slate-600 font-mono text-xs">${p.No}</td>
+                            <td class="name-col">${p.Name}</td>
+                            <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF}</td>
+                            <td class="text-slate-500 font-mono text-xs">${p.MIN}</td>
+                            <td class="pts-col">${p.PTS}</td>
                             <td class="text-slate-400 font-mono">${p.FGM}/${p.FGA}</td>
                             <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FGM, p.FGA)}%</td>
                             <td class="text-slate-400 font-mono">${p.TPM}/${p.TPA}</td>
@@ -128,12 +144,12 @@
                             <td class="text-white font-bold">${p.REB}</td>
                             <td class="text-slate-500">${p.AST || '-'}</td>
                             <td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
-                            <td class="border-l border-slate-800 ${perfStyle}">${rowPER.toFixed(1)}</td>
+                            <td class="border-l border-slate-800 text-yellow-500 font-black">${parseFloat(p.PER).toFixed(1)}</td>
                         </tr>
                     `;
                 }).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500 text-center">데이터 로드 실패</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold uppercase tracking-widest">Connection Failed</td></tr>';
             }
         }
     </script>
