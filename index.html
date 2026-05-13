@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
-        .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; color: #8b949e; }
-        /* 탭 강조 컬러 */
         .q-btn.active { 
             background-color: #238636 !important; 
             color: white !important; 
@@ -21,7 +19,6 @@
         td { padding: 14px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
         .name-col { color: #58a6ff; font-weight: bold; text-align: left !important; padding-left: 20px !important; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
-        /* 하단 상대팀 대시보드 */
         .opp-bottom-bar {
             margin-top: 24px;
             background: linear-gradient(90deg, #1c1111 0%, #161b22 100%);
@@ -50,31 +47,32 @@
             </div>
         </div>
 
-        <!-- 상단 스코어보드 (팀파울 강조) -->
+        <!-- 상단 스코어보드 -->
         <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-10">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-sm mb-2 tracking-widest">HOME</p>
-                <p id="our-score" class="text-7xl font-black text-white mb-4">0</p>
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-xl bg-slate-900 border border-slate-800">
-                    <span class="text-slate-500 text-lg font-bold">TF</span>
-                    <span id="our-foul-val" class="text-3xl font-black text-white">0</span>
+                <p id="our-score" class="text-8xl font-black text-white mb-2">0</p>
+                <div class="flex flex-col items-center">
+                    <!-- TF 텍스트 사이즈를 text-lg로 키우고 스타일 강화 -->
+                    <span class="text-slate-500 text-lg font-black tracking-[0.3em] mb-1">TF</span>
+                    <span id="our-foul-val" class="text-5xl font-black text-white">0</span>
                 </div>
             </div>
             <div class="text-center border-x border-slate-800/50 px-4">
-                <p id="current-q-label" class="text-yellow-500 text-3xl font-black italic mb-2 tracking-tighter">TOTAL</p>
-                <p class="text-slate-600 text-lg font-bold tracking-[0.5em]">VS</p>
+                <p id="current-q-label" class="text-yellow-500 text-4xl font-black italic mb-2 tracking-tighter">TOTAL</p>
+                <p class="text-slate-600 text-xs font-bold tracking-[0.5em]">VS</p>
             </div>
             <div class="text-center">
                 <p id="opp-name-display" class="text-red-400 font-black text-sm mb-2 tracking-widest uppercase">AWAY</p>
-                <p id="opp-score" class="text-7xl font-black text-white mb-4">0</p>
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-xl bg-slate-900 border border-slate-800">
-                    <span class="text-slate-500 text-lg font-bold">TF</span>
-                    <span id="opp-foul-val" class="text-3xl font-black text-white">0</span>
+                <p id="opp-score" class="text-8xl font-black text-white mb-2">0</p>
+                <div class="flex flex-col items-center">
+                    <!-- TF 텍스트 사이즈를 text-lg로 키우고 스타일 강화 -->
+                    <span class="text-slate-500 text-lg font-black tracking-[0.3em] mb-1">TF</span>
+                    <span id="opp-foul-val" class="text-5xl font-black text-white">0</span>
                 </div>
             </div>
         </div>
         
-        <!-- 우리팀 테이블 -->
         <div class="table-wrapper shadow-2xl overflow-x-auto">
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
@@ -89,7 +87,6 @@
             </table>
         </div>
 
-        <!-- 상대팀 하단 대시보드 (여기로 상세 기록 이동) -->
         <div id="opp-stats-footer" class="opp-bottom-bar flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <span class="text-red-500 font-black text-2xl italic uppercase" id="opp-footer-name">AWAY</span>
@@ -106,13 +103,11 @@
     </div>
 
     <script>
-        // ⚠️ 주의: 본인의 GAS 배포 URL로 교체하세요!
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbz-NYy-9gMYl7BkUh9kuZr1t1ukk9-byQVVPl1iMBKrzPb36mCxD5J6gnn_Zs6taAae/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxPfIc0jlu5Jh4EVj8oXadatfp40fZO14iO_-SqCjiSnl5PZMC7bzPYWh4ioxpoZpdg/exec";
 
         window.onload = () => loadData('TOTAL');
 
         async function loadData(q) {
-            // 탭 강조 표시
             document.querySelectorAll('.q-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.innerText === q || (btn.innerText === '전체' && q === 'TOTAL'));
             });
@@ -127,21 +122,18 @@
 
                 document.getElementById('match-title-display').innerText = data.matchTitle || "NO TITLE";
 
-                // 상단 스코어 업데이트
                 const ourPts = data.stats.reduce((acc, p) => acc + (p.PTS || 0), 0);
                 const ourFls = data.stats.reduce((acc, p) => acc + (p.PF || 0), 0);
                 document.getElementById('our-score').innerText = ourPts;
                 document.getElementById('our-foul-val').innerText = ourFls;
-                document.getElementById('our-foul-val').className = ourFls >= 5 ? "text-3xl font-black animate-bonus" : "text-3xl font-black text-white";
+                document.getElementById('our-foul-val').className = ourFls >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
 
-                // 상대팀 정보 업데이트
                 if(data.opp) {
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
                     document.getElementById('opp-foul-val').innerText = data.opp.tf;
-                    document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-3xl font-black animate-bonus" : "text-3xl font-black text-white";
+                    document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
                     
-                    // 하단 대시보드 업데이트
                     document.getElementById('opp-footer-name').innerText = data.opp.name;
                     document.getElementById('opp-f-reb').innerText = data.opp.reb;
                     document.getElementById('opp-f-ast').innerText = data.opp.ast;
@@ -150,7 +142,6 @@
                     document.getElementById('opp-f-to').innerText = data.opp.to;
                 }
 
-                // 우리팀 테이블 렌더링
                 tbody.innerHTML = data.stats.map(p => {
                     const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
                     return `
@@ -175,7 +166,7 @@
                     `;
                 }).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold">연결 실패 (URL을 확인하세요)</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold uppercase tracking-widest">Connection Failed</td></tr>';
             }
         }
     </script>
