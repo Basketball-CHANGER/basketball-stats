@@ -15,9 +15,21 @@
             font-weight: bold;
         }
         .table-wrapper { margin-top: 30px; background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; overflow: hidden; }
-        th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 14px 4px; border-bottom: 2px solid #30363d; }
-        td { padding: 14px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
-        .name-col { color: #58a6ff; font-weight: bold; text-align: left !important; padding-left: 20px !important; }
+        
+        /* 헤더 및 셀 간격 조정 */
+        th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
+        td { padding: 10px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
+        
+        /* 이름 열 너비 고정 및 스타일 */
+        .name-col { 
+            color: #58a6ff; 
+            font-weight: bold; 
+            text-align: left !important; 
+            padding-left: 15px !important; 
+            width: 120px; /* 이름 열 너비 고정 */
+            min-width: 120px;
+        }
+        
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
         
         .stats-dashboard {
@@ -50,7 +62,7 @@
             </div>
         </div>
 
-        <!-- 상단 스코어보드 (TF 크기 통일) -->
+        <!-- 상단 스코어보드 -->
         <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-8">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-sm mb-2 tracking-widest uppercase">Home</p>
@@ -110,7 +122,11 @@
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
                     <tr>
-                        <th class="w-12">No</th><th class="name-col">NAME</th><th class="text-orange-400">PF</th><th>MIN</th><th class="text-white font-bold">PTS</th>
+                        <th class="w-12">No</th>
+                        <th class="name-col">NAME</th>
+                        <th class="text-orange-400">PF</th>
+                        <th>MIN</th>
+                        <th class="text-white font-bold">PTS</th>
                         <th>2P M/A</th><th>2P%</th><th>3P M/A</th><th>3P%</th><th>FT M/A</th><th>FT%</th>
                         <th>OR</th><th>DR</th><th class="text-slate-200">REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th>
                         <th class="text-yellow-400 font-bold border-l border-slate-700">PER</th>
@@ -120,11 +136,10 @@
             </table>
         </div>
 
-        <!-- 상대팀 요약 대시보드 (상대팀명 옆 STATS 추가) -->
+        <!-- 상대팀 요약 대시보드 -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
-                    <!-- 상대팀명 옆에 STATS 문구 추가 -->
                     <span class="text-red-500 font-black text-2xl italic uppercase"><span id="opp-footer-name">Away</span> Stats</span>
                     <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Team Summary</span>
                 </div>
@@ -193,7 +208,6 @@
 
                 document.getElementById('our-score').innerText = h.pts;
                 document.getElementById('our-foul-val').innerText = h.fl;
-                // TF 숫자 크기 고정 (text-xl)
                 document.getElementById('our-foul-val').className = h.fl >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
 
                 document.getElementById('home-f-reb').innerText = h.reb;
@@ -213,7 +227,6 @@
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
                     document.getElementById('opp-foul-val').innerText = data.opp.tf;
-                    // TF 숫자 크기 고정 (text-xl)
                     document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
                     
                     document.getElementById('opp-footer-name').innerText = data.opp.name;
