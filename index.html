@@ -20,7 +20,6 @@
         .name-col { color: #58a6ff; font-weight: bold; text-align: left !important; padding-left: 20px !important; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
         
-        /* 대시보드 공통 스타일 */
         .stats-dashboard {
             margin-top: 24px;
             border-radius: 16px;
@@ -51,12 +50,11 @@
             </div>
         </div>
 
-        <!-- 상단 스코어보드 (TF 레이아웃 수정) -->
+        <!-- 상단 스코어보드 (TF 크기 통일) -->
         <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-8">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-sm mb-2 tracking-widest uppercase">Home</p>
                 <p id="our-score" class="text-8xl font-black text-white mb-4">0</p>
-                <!-- TF와 숫자를 가로로 배치 -->
                 <div class="flex justify-center items-baseline gap-3">
                     <span class="text-slate-500 text-xl font-black tracking-widest">TF</span>
                     <span id="our-foul-val" class="text-xl font-black text-white">0</span>
@@ -76,7 +74,7 @@
             </div>
         </div>
 
-        <!-- [NEW] 우리 팀 요약 대시보드 (테이블 위 배치) -->
+        <!-- 우리 팀 요약 대시보드 -->
         <div class="stats-dashboard home-dashboard mb-6">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
@@ -122,11 +120,12 @@
             </table>
         </div>
 
-        <!-- 상대팀 요약 대시보드 -->
+        <!-- 상대팀 요약 대시보드 (상대팀명 옆 STATS 추가) -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
-                    <span class="text-red-500 font-black text-2xl italic uppercase" id="opp-footer-name">Away</span>
+                    <!-- 상대팀명 옆에 STATS 문구 추가 -->
+                    <span class="text-red-500 font-black text-2xl italic uppercase"><span id="opp-footer-name">Away</span> Stats</span>
                     <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Team Summary</span>
                 </div>
                 <div class="flex gap-10 text-center">
@@ -194,6 +193,7 @@
 
                 document.getElementById('our-score').innerText = h.pts;
                 document.getElementById('our-foul-val').innerText = h.fl;
+                // TF 숫자 크기 고정 (text-xl)
                 document.getElementById('our-foul-val').className = h.fl >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
 
                 document.getElementById('home-f-reb').innerText = h.reb;
@@ -213,6 +213,7 @@
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
                     document.getElementById('opp-foul-val').innerText = data.opp.tf;
+                    // TF 숫자 크기 고정 (text-xl)
                     document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-xl font-black animate-bonus" : "text-xl font-black text-white";
                     
                     document.getElementById('opp-footer-name').innerText = data.opp.name;
