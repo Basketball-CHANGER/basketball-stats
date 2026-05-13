@@ -10,23 +10,26 @@
         .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; }
         .nav-btn.active { background-color: #238636; border-color: #3fb950; color: white; font-weight: bold; }
         .table-wrapper { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
-        th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
-        td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; }
+        
+        /* 테이블 기본 정렬을 가운데로 설정 */
+        th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; text-align: center !important; }
+        td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; text-align: center !important; }
         tr:hover { background-color: #1c2128; }
         
-        /* 이름 열 너비 최적화: 텍스트 길이에 맞춰지도록 최소 너비 조정 */
+        /* 이름 열: 너비를 아주 좁게 고정하고 가운데 정렬 */
         .name-col { 
             color: #58a6ff; 
             font-weight: bold; 
-            text-align: left; 
-            padding-left: 12px; 
-            white-space: nowrap; /* 이름이 줄바꿈되지 않게 설정 */
-            width: 1%; /* 테이블 내에서 내용물 크기만큼만 차지하도록 유도 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px; /* 이름 열의 최대 너비를 강제 제한 */
+            width: 80px;
+            text-align: center !important;
+            padding-left: 6px !important;
         }
         
-        /* PTS 폰트 크기 통일: 다른 td(0.8rem)와 동일하게 조정 */
         .pts-col { color: #ffffff; font-weight: 800; font-size: 0.8rem; }
-        
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
         
         /* PER 등급 스타일 */
@@ -45,7 +48,7 @@
         <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
             <div>
                 <h1 class="text-2xl font-bold text-white tracking-tight">🏀 TEAM ANALYTICS</h1>
-                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase text-center lg:text-left">Loading...</p>
+                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase">Loading...</p>
             </div>
 
             <div id="team-foul-display"></div>
@@ -61,11 +64,11 @@
         
         <!-- 메인 테이블 -->
         <div class="table-wrapper overflow-x-auto shadow-2xl">
-            <table class="w-full text-center border-collapse min-w-[1300px]">
+            <table class="w-full border-collapse min-w-[1300px]">
                 <thead>
                     <tr>
-                        <th class="text-left pl-4 w-12">No</th>
-                        <th class="text-left pl-3">NAME</th>
+                        <th class="w-12">No</th>
+                        <th class="w-20">NAME</th>
                         <th class="text-orange-400">PF</th>
                         <th>MIN</th>
                         <th class="text-white">PTS</th>
@@ -86,7 +89,7 @@
                     </tr>
                 </thead>
                 <tbody id="stats-body">
-                    <tr><td colspan="19" class="py-32 text-slate-500 text-center animate-pulse">데이터를 동기화 중입니다...</td></tr>
+                    <tr><td colspan="19" class="py-32 text-slate-500 animate-pulse">데이터를 동기화 중입니다...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -94,7 +97,6 @@
     </div>
 
     <script>
-        // 본인의 배포 URL이 동일하다면 그대로 두시면 됩니다.
         const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwt9Ij2ggj1ZszfCHT7w33P2YQEj7nWHbCYEiZixGLPqppqn0ukfBc0y3b3xP11KkUQ/exec";
 
         window.onload = () => loadQuarter('TOTAL');
@@ -104,7 +106,7 @@
             document.getElementById('current-view-title').innerText = `Viewing: ${qName} Statistics`;
             
             const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '<tr><td colspan="19" class="py-32 text-slate-500 text-center">Loading Data...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="19" class="py-32 text-slate-500">Loading Data...</td></tr>';
 
             try {
                 const response = await fetch(`${BASE_API_URL}?q=${qName}`);
@@ -129,7 +131,7 @@
 
                     const row = `
                         <tr>
-                            <td class="text-slate-500 font-mono pl-4 text-left">${p.No || '-'}</td>
+                            <td class="text-slate-500 font-mono">${p.No || '-'}</td>
                             <td class="name-col">${p.Name}</td>
                             <td class="${foulClass} font-bold">${p.PF || 0}</td>
                             <td class="text-slate-500 font-mono">${p.MIN || 0}</td>
@@ -147,7 +149,7 @@
                             <td>${p.STL || 0}</td>
                             <td>${p.BLK || 0}</td>
                             <td>${p.TO || 0}</td>
-                            <td class="border-l border-[#30363d] text-center px-4">
+                            <td class="border-l border-[#30363d] px-4">
                                 <span class="font-black text-base ${gradeStyle}">${rowPER.toFixed(1)}</span>
                                 <span class="text-[10px] ${gradeStyle} ml-1 tracking-tighter">(${grade})</span>
                             </td>
@@ -156,7 +158,7 @@
                     tbody.innerHTML += row;
                 });
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500 text-center">데이터를 불러오지 못했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500">데이터를 불러오지 못했습니다.</td></tr>';
             }
         }
 
