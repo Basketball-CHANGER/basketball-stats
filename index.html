@@ -19,12 +19,13 @@
         td { padding: 14px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
         .name-col { color: #58a6ff; font-weight: bold; text-align: left !important; padding-left: 20px !important; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
+        /* 하단 상대팀 대시보드 스타일 확장 */
         .opp-bottom-bar {
             margin-top: 24px;
             background: linear-gradient(90deg, #1c1111 0%, #161b22 100%);
             border: 1px solid #442323;
             border-radius: 16px;
-            padding: 24px;
+            padding: 30px;
         }
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .animate-bonus { animation: pulse-red 1s infinite; color: #f85149 !important; }
@@ -50,10 +51,9 @@
         <!-- 상단 스코어보드 -->
         <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-10">
             <div class="text-center">
-                <p class="text-blue-400 font-black text-sm mb-2 tracking-widest">HOME</p>
+                <p class="text-blue-400 font-black text-sm mb-2 tracking-widest uppercase">HOME</p>
                 <p id="our-score" class="text-8xl font-black text-white mb-2">0</p>
                 <div class="flex flex-col items-center">
-                    <!-- TF 텍스트 사이즈를 text-lg로 키우고 스타일 강화 -->
                     <span class="text-slate-500 text-lg font-black tracking-[0.3em] mb-1">TF</span>
                     <span id="our-foul-val" class="text-5xl font-black text-white">0</span>
                 </div>
@@ -66,13 +66,13 @@
                 <p id="opp-name-display" class="text-red-400 font-black text-sm mb-2 tracking-widest uppercase">AWAY</p>
                 <p id="opp-score" class="text-8xl font-black text-white mb-2">0</p>
                 <div class="flex flex-col items-center">
-                    <!-- TF 텍스트 사이즈를 text-lg로 키우고 스타일 강화 -->
                     <span class="text-slate-500 text-lg font-black tracking-[0.3em] mb-1">TF</span>
                     <span id="opp-foul-val" class="text-5xl font-black text-white">0</span>
                 </div>
             </div>
         </div>
         
+        <!-- 우리팀 테이블 -->
         <div class="table-wrapper shadow-2xl overflow-x-auto">
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
@@ -87,23 +87,41 @@
             </table>
         </div>
 
-        <div id="opp-stats-footer" class="opp-bottom-bar flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <span class="text-red-500 font-black text-2xl italic uppercase" id="opp-footer-name">AWAY</span>
-                <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Team Stats Summary</span>
+        <!-- 상대팀 하단 대시보드 (슛 성공률 추가 버전) -->
+        <div id="opp-stats-footer" class="opp-bottom-bar">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center gap-4">
+                    <span class="text-red-500 font-black text-3xl italic uppercase" id="opp-footer-name">AWAY</span>
+                    <span class="text-slate-600 text-xs font-bold border-l border-slate-800 pl-4 uppercase tracking-widest font-mono">Opponent Statistics Dashboard</span>
+                </div>
+                <div class="flex gap-10 text-center">
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="opp-f-reb" class="text-white font-black text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="opp-f-ast" class="text-white font-black text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="opp-f-stl" class="text-white font-black text-2xl">0</p></div>
+                    <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-red-900">TO</p><p id="opp-f-to" class="text-red-600 font-black text-2xl">0</p></div>
+                </div>
             </div>
-            <div class="flex gap-12 text-center">
-                <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">REB</p><p id="opp-f-reb" class="text-white font-black text-2xl">0</p></div>
-                <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">AST</p><p id="opp-f-ast" class="text-white font-black text-2xl">0</p></div>
-                <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">STL</p><p id="opp-f-stl" class="text-white font-black text-2xl">0</p></div>
-                <div><p class="text-slate-500 text-[10px] uppercase font-bold mb-1">BLK</p><p id="opp-f-blk" class="text-white font-black text-2xl">0</p></div>
-                <div><p class="text-red-900 text-[10px] uppercase font-bold mb-1">TO</p><p id="opp-f-to" class="text-red-600 font-black text-2xl">0</p></div>
+
+            <!-- 하단 슛 성공률 라인 추가 -->
+            <div class="grid grid-cols-3 gap-4 border-t border-slate-800 pt-6">
+                <div class="bg-slate-900/50 p-4 rounded-xl flex justify-between items-center">
+                    <div><p class="text-slate-500 text-[10px] font-bold">2P M/A</p><p id="opp-f-2pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
+                    <div class="text-right"><p class="text-slate-500 text-[10px] font-bold">2P%</p><p id="opp-f-2p-pct" class="text-orange-400 font-black text-2xl">0%</p></div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl flex justify-between items-center border border-yellow-900/20">
+                    <div><p class="text-slate-500 text-[10px] font-bold">3P M/A</p><p id="opp-f-3pm" class="text-white font-mono text-lg font-bold">0/0</p></div>
+                    <div class="text-right"><p class="text-slate-500 text-[10px] font-bold">3P%</p><p id="opp-f-3p-pct" class="text-yellow-500 font-black text-2xl">0%</p></div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl flex justify-between items-center">
+                    <div><p class="text-slate-500 text-[10px] font-bold">FT M/A</p><p id="opp-f-ftm" class="text-white font-mono text-lg font-bold">0/0</p></div>
+                    <div class="text-right"><p class="text-slate-500 text-[10px] font-bold">FT%</p><p id="opp-f-ft-pct" class="text-emerald-400 font-black text-2xl">0%</p></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxPfIc0jlu5Jh4EVj8oXadatfp40fZO14iO_-SqCjiSnl5PZMC7bzPYWh4ioxpoZpdg/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzvZi05WHSNwd9UUK1J5MTn5rrosXRY-sMwAY5_2kT0dGqoS4IkmeLTkOs15EZKscZG/exec";
 
         window.onload = () => loadData('TOTAL');
 
@@ -129,17 +147,27 @@
                 document.getElementById('our-foul-val').className = ourFls >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
 
                 if(data.opp) {
+                    const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
+                    
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
                     document.getElementById('opp-foul-val').innerText = data.opp.tf;
                     document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
                     
+                    // 하단 대시보드 업데이트
                     document.getElementById('opp-footer-name').innerText = data.opp.name;
                     document.getElementById('opp-f-reb').innerText = data.opp.reb;
                     document.getElementById('opp-f-ast').innerText = data.opp.ast;
                     document.getElementById('opp-f-stl').innerText = data.opp.stl;
-                    document.getElementById('opp-f-blk').innerText = data.opp.blk;
                     document.getElementById('opp-f-to').innerText = data.opp.to;
+                    
+                    // 슛 성공률 업데이트
+                    document.getElementById('opp-f-2pm').innerText = `${data.opp.fgm}/${data.opp.fga}`;
+                    document.getElementById('opp-f-2p-pct').innerText = `${getRate(data.opp.fgm, data.opp.fga)}%`;
+                    document.getElementById('opp-f-3pm').innerText = `${data.opp.tpm}/${data.opp.tpa}`;
+                    document.getElementById('opp-f-3p-pct').innerText = `${getRate(data.opp.tpm, data.opp.tpa)}%`;
+                    document.getElementById('opp-f-ftm').innerText = `${data.opp.ftm}/${data.opp.fta}`;
+                    document.getElementById('opp-f-ft-pct').innerText = `${getRate(data.opp.ftm, data.opp.fta)}%`;
                 }
 
                 tbody.innerHTML = data.stats.map(p => {
