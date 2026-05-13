@@ -194,7 +194,7 @@
 
                 document.getElementById('our-score').innerText = h.pts;
                 document.getElementById('our-foul-val').innerText = h.fl;
-                document.getElementById('our-foul-val').className = h.fl >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
+                document.getElementById('our-foul-val').className = h.fl >= 5 ? "text-xl font-black animate-bonus" : "text-5xl font-black text-white";
 
                 document.getElementById('home-f-reb').innerText = h.reb;
                 document.getElementById('home-f-ast').innerText = h.ast;
@@ -213,7 +213,7 @@
                     document.getElementById('opp-name-display').innerText = data.opp.name;
                     document.getElementById('opp-score').innerText = data.opp.pts;
                     document.getElementById('opp-foul-val').innerText = data.opp.tf;
-                    document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-5xl font-black animate-bonus" : "text-5xl font-black text-white";
+                    document.getElementById('opp-foul-val').className = data.opp.tf >= 5 ? "text-xl font-black animate-bonus" : "text-5xl font-black text-white";
                     
                     document.getElementById('opp-footer-name').innerText = data.opp.name;
                     document.getElementById('opp-f-reb').innerText = data.opp.reb;
