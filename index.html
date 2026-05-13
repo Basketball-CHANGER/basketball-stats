@@ -16,19 +16,23 @@
         }
         .table-wrapper { margin-top: 30px; background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; overflow: hidden; }
         
+        /* 헤더 및 셀 간격 조정 */
         th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 12px 4px; border-bottom: 2px solid #30363d; }
         td { padding: 10px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
         
+        /* 이름 열 스타일 (가운데 정렬 및 너비 고정) */
         .name-col { 
             color: #58a6ff; 
             font-weight: bold; 
             text-align: center !important;
+            padding-left: 0 !important;
             width: 130px;
             min-width: 130px;
         }
         
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
         
+        /* 대시보드 공통 스타일 */
         .stats-dashboard {
             margin-top: 24px;
             border-radius: 16px;
@@ -41,7 +45,7 @@
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .animate-bonus { animation: pulse-red 1s infinite; color: #f85149 !important; }
 
-        /* 모바일 대응 미디어 쿼리 추가 */
+        /* 모바일 대응 미디어 쿼리 */
         @media (max-width: 768px) {
             .scoreboard-grid { grid-template-columns: 1fr !important; gap: 2rem; }
             .scoreboard-vs { border-x: none !important; border-y: 1px solid #30363d; padding: 1rem 0; }
@@ -70,7 +74,7 @@
             </div>
         </div>
 
-        <!-- 상단 스코어보드 -->
+        <!-- 상단 스코어보드 (TF 텍스트 및 숫자 크기 통일) -->
         <div class="grid grid-cols-3 gap-6 bg-[#161b22] p-6 md:p-10 rounded-[32px] border border-[#30363d] shadow-2xl items-center mb-8 scoreboard-grid">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-sm mb-2 tracking-widest uppercase">Home</p>
@@ -137,13 +141,14 @@
                         <th>2P M/A</th><th>2P%</th><th>3P M/A</th><th>3P%</th><th>FT M/A</th><th>FT%</th>
                         <th>OR</th><th>DR</th><th class="text-slate-200">REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th>
                         <th class="text-yellow-400 font-bold border-l border-slate-700">PER</th>
+                        <th>GRADE</th>
                     </tr>
                 </thead>
                 <tbody id="stats-body"></tbody>
             </table>
         </div>
 
-        <!-- 상대팀 요약 대시보드 -->
+        <!-- 상대팀 요약 대시보드 (상대팀명 옆 Stats 추가) -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex justify-between items-center mb-6 dashboard-header">
                 <div class="flex items-center gap-4">
@@ -186,7 +191,7 @@
             document.getElementById('current-q-label').innerText = q;
 
             const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-slate-500 animate-pulse text-center font-bold uppercase tracking-widest">Syncing Data...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="20" class="py-20 text-slate-500 animate-pulse text-center font-bold uppercase tracking-widest">Syncing Data...</td></tr>';
 
             try {
                 const response = await fetch(`${BASE_API_URL}?q=${q}`);
@@ -247,28 +252,38 @@
                     document.getElementById('opp-f-ft-pct').innerText = `${getRate(data.opp.ftm, data.opp.fta)}%`;
                 }
 
-                tbody.innerHTML = data.stats.map(p => `
-                    <tr>
-                        <td class="text-slate-600 font-mono text-xs">${p.No}</td>
-                        <td class="name-col">${p.Name}</td>
-                        <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF}</td>
-                        <td class="text-slate-500 font-mono text-xs">${p.MIN}</td>
-                        <td class="text-white font-bold">${p.PTS}</td>
-                        <td class="text-slate-400 font-mono">${p.FGM}/${p.FGA}</td>
-                        <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FGM, p.FGA)}%</td>
-                        <td class="text-slate-400 font-mono">${p.TPM}/${p.TPA}</td>
-                        <td class="text-[10px] text-slate-600 font-mono">${getRate(p.TPM, p.TPA)}%</td>
-                        <td class="text-slate-400 font-mono">${p.FTM}/${p.FTA}</td>
-                        <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FTM, p.FTA)}%</td>
-                        <td>${p.OR}</td><td>${p.DR}</td>
-                        <td class="text-white font-bold">${p.REB}</td>
-                        <td class="text-slate-500">${p.AST}</td>
-                        <td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
-                        <td class="border-l border-slate-800 text-yellow-500 font-black">${parseFloat(p.PER).toFixed(1)}</td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = data.stats.map(p => {
+                    const perVal = parseFloat(p.PER);
+                    let grade = "";
+                    if (perVal >= 30) grade = "에이스";
+                    else if (perVal >= 20) grade = "준수";
+                    else if (perVal >= 10) grade = "1인분";
+                    else grade = "노력";
+
+                    return `
+                        <tr>
+                            <td class="text-slate-600 font-mono text-xs">${p.No}</td>
+                            <td class="name-col">${p.Name}</td>
+                            <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF}</td>
+                            <td class="text-slate-500 font-mono text-xs">${p.MIN}</td>
+                            <td class="text-white font-bold">${p.PTS}</td>
+                            <td class="text-slate-400 font-mono">${p.FGM}/${p.FGA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FGM, p.FGA)}%</td>
+                            <td class="text-slate-400 font-mono">${p.TPM}/${p.TPA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.TPM, p.TPA)}%</td>
+                            <td class="text-slate-400 font-mono">${p.FTM}/${p.FTA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FTM, p.FTA)}%</td>
+                            <td>${p.OR}</td><td>${p.DR}</td>
+                            <td class="text-white font-bold">${p.REB}</td>
+                            <td class="text-slate-500">${p.AST}</td>
+                            <td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
+                            <td class="border-l border-slate-800 text-yellow-500 font-black">${perVal.toFixed(1)}</td>
+                            <td class="text-xs font-bold text-slate-400 italic">${grade}</td>
+                        </tr>
+                    `;
+                }).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-red-500 text-center font-bold">연결 실패</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="20" class="py-20 text-red-500 text-center font-bold">연결 실패</td></tr>';
             }
         }
     </script>
