@@ -3,191 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHANGER Stats Dashboard</title>
+    <title>CHANGER Stats Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
-        .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; }
+        .nav-btn { transition: all 0.2s; border: 1px solid #30363d; cursor: pointer; color: #8b949e; }
         .nav-btn.active { background-color: #238636; border-color: #3fb950; color: white; font-weight: bold; }
         .table-wrapper { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
-        
         th { background-color: #1f2937; color: #8b949e; font-size: 0.65rem; padding: 12px 4px; border-bottom: 2px solid #30363d; text-align: center !important; }
         td { padding: 12px 6px; border-bottom: 1px solid #21262d; font-size: 0.8rem; text-align: center !important; }
-        tr:hover { background-color: #1c2128; }
-        
-        .name-col { 
-            color: #58a6ff; 
-            font-weight: bold; 
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 70px;
-            max-width: 70px;
-            padding-left: 4px !important;
-            padding-right: 4px !important;
-        }
-        
-        .pts-col { color: #ffffff; font-weight: 800; font-size: 0.8rem; }
+        .name-col { color: #58a6ff; font-weight: bold; width: 80px; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
-        
-        .grade-best { color: #f2ca33; font-weight: 900; text-decoration: underline; }
-        .grade-good { color: #34d399; font-weight: bold; }
-        .grade-normal { color: #e2e8f0; }
-        .grade-effort { color: #4b5563; font-style: italic; }
-
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .animate-bonus { animation: pulse-red 1s infinite; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-[1500px] mx-auto">
-        <!-- 상단 헤더: 제목 CHANGER로 변경 -->
-        <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
-            <div>
+    <div class="max-w-[1400px] mx-auto">
+        <!-- 상단 헤더: CHANGER + 경기 명칭(U2) -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+            <div class="flex items-center gap-4">
                 <h1 class="text-3xl font-black text-white tracking-tighter">🏀 CHANGER</h1>
-                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase text-center lg:text-left">데이터 로드 중...</p>
+                <span id="match-title-display" class="bg-blue-900/30 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-md border border-blue-800/50 tracking-tight italic">연결 중...</span>
             </div>
-
-            <div id="team-foul-display"></div>
             
             <div class="flex bg-[#161b22] p-1 rounded-lg border border-[#30363d]">
-                <button onclick="loadQuarter('TOTAL')" class="nav-btn active px-5 py-2 rounded-md text-sm mr-1">전체</button>
-                <button onclick="loadQuarter('1Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">1Q</button>
-                <button onclick="loadQuarter('2Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">2Q</button>
-                <button onclick="loadQuarter('3Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">3Q</button>
-                <button onclick="loadQuarter('4Q')" class="nav-btn px-5 py-2 rounded-md text-sm">4Q</button>
+                <button onclick="loadData('TOTAL')" class="q-btn active px-6 py-2 rounded-md text-sm mr-1">전체</button>
+                <button onclick="loadData('1Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">1Q</button>
+                <button onclick="loadData('2Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">2Q</button>
+                <button onclick="loadData('3Q')" class="q-btn px-6 py-2 rounded-md text-sm mr-1">3Q</button>
+                <button onclick="loadData('4Q')" class="q-btn px-6 py-2 rounded-md text-sm">4Q</button>
+            </div>
+        </div>
+
+        <!-- 실시간 스코어보드 -->
+        <div class="grid grid-cols-3 gap-4 mb-10 bg-[#161b22] p-8 rounded-3xl border border-[#30363d] items-center shadow-2xl relative overflow-hidden">
+            <div class="text-center">
+                <p class="text-blue-400 font-bold text-xs mb-2 tracking-widest uppercase">Home</p>
+                <p id="our-score" class="text-6xl font-black text-white">0</p>
+                <p id="our-foul-label" class="text-[10px] text-slate-500 mt-3 font-mono">TF: 0</p>
+            </div>
+            <div class="text-center border-x border-slate-800">
+                <p id="current-q-label" class="text-yellow-500 text-xl font-black italic tracking-tighter">TOTAL</p>
+                <div class="w-8 h-[1px] bg-slate-700 mx-auto my-3"></div>
+                <p class="text-slate-500 text-[10px] font-bold tracking-[0.2em]">VS</p>
+            </div>
+            <div class="text-center">
+                <p id="opp-name-display" class="text-red-400 font-bold text-xs mb-2 tracking-widest uppercase">Away</p>
+                <p id="opp-score" class="text-6xl font-black text-white">0</p>
+                <p id="opp-foul-label" class="text-[10px] text-slate-500 mt-3 font-mono">TF: 0</p>
             </div>
         </div>
         
-        <!-- 메인 테이블 -->
+        <!-- 데이터 테이블 -->
         <div class="table-wrapper overflow-x-auto shadow-2xl">
-            <table class="w-full border-collapse min-w-[1300px]">
+            <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
                     <tr>
-                        <th class="w-10">No</th>
-                        <th class="w-20">NAME</th>
-                        <th class="text-orange-400">PF</th>
-                        <th>MIN</th>
-                        <th class="text-white">PTS</th>
-                        <th>2P M/A</th>
-                        <th>2P%</th>
-                        <th>3P M/A</th>
-                        <th>3P%</th>
-                        <th>FT M/A</th>
-                        <th>FT%</th>
-                        <th>OR</th>
-                        <th>DR</th>
-                        <th class="text-slate-200">REB</th>
-                        <th>AST</th>
-                        <th>STL</th>
-                        <th>BLK</th>
-                        <th>TO</th>
-                        <th class="text-yellow-400 font-bold border-l border-slate-700">PER (RANK)</th>
+                        <th class="w-10">No</th><th class="w-24 text-left px-4">NAME</th><th class="text-orange-400">PF</th><th>MIN</th><th class="text-white">PTS</th>
+                        <th>2P M/A</th><th>2P%</th><th>3P M/A</th><th>3P%</th><th>FT M/A</th><th>FT%</th>
+                        <th>OR</th><th>DR</th><th class="text-slate-200">REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th>
+                        <th class="text-yellow-400 font-bold border-l border-slate-700">PER</th>
                     </tr>
                 </thead>
-                <tbody id="stats-body">
-                    <tr><td colspan="19" class="py-32 text-slate-500 animate-pulse">데이터를 동기화 중입니다...</td></tr>
-                </tbody>
+                <tbody id="stats-body"></tbody>
             </table>
         </div>
-        <p class="mt-4 text-[10px] text-slate-600 text-center uppercase tracking-[0.2em]">Data refined by Hollinger's Efficiency Rating System</p>
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxgn2iLWQlS4rHkr8E2m4724QNzG6IKTHI0XcD-NyS5tloXpnD8Y5X5JE1Fo_XHSRx4/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbygON5pixtXTne7NDdxdfr_hPRzePCMNw4xe3qEJsPEyH0P4gB5wm6Q3N3Bn8KZKedg/exec";
 
-        window.onload = () => loadQuarter('TOTAL');
+        window.onload = () => loadData('TOTAL');
 
-        async function loadQuarter(qName) {
-            updateButtonUI(qName);
-            
-            // Viewing 텍스트 한글화 수정
-            let displayTitle = qName;
-            if(qName === 'TOTAL') displayTitle = 'TOTAL';
-            else displayTitle = qName.replace('Q', '쿼터');
-            
-            document.getElementById('current-view-title').innerText = `조회 중: ${displayTitle} 통계`;
-            
+        async function loadData(q) {
+            // 버튼 UI 업데이트
+            document.querySelectorAll('.q-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText === q || (btn.innerText === '전체' && q === 'TOTAL'));
+            });
+            document.getElementById('current-q-label').innerText = q;
+
             const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '<tr><td colspan="19" class="py-32 text-slate-500">데이터를 불러오는 중...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="19" class="py-20 text-slate-500 animate-pulse text-center">데이터를 동기화 중입니다...</td></tr>';
 
             try {
-                const response = await fetch(`${BASE_API_URL}?q=${qName}`);
+                const response = await fetch(`${BASE_API_URL}?q=${q}`);
                 const data = await response.json();
-                
-                const teamFouls = data.reduce((acc, p) => acc + (parseInt(p.PF) || 0), 0);
-                updateTeamFoulUI(teamFouls, qName);
 
-                tbody.innerHTML = '';
+                // 1. 경기 제목 (U2 셀 값) 업데이트
+                document.getElementById('match-title-display').innerText = data.matchTitle || "No Title";
 
-                data.forEach(p => {
+                // 2. 우리팀 스코어 및 팀파울
+                const ourScore = data.stats.reduce((acc, p) => acc + (parseInt(p.PTS) || 0), 0);
+                const ourFouls = data.stats.reduce((acc, p) => acc + (parseInt(p.PF) || 0), 0);
+                document.getElementById('our-score').innerText = ourScore;
+                document.getElementById('our-foul-label').innerText = `TF: ${ourFouls}`;
+                document.getElementById('our-foul-label').className = ourFouls >= 5 ? "text-[10px] text-red-500 mt-3 font-mono font-bold animate-bonus" : "text-[10px] text-slate-500 mt-3 font-mono";
+
+                // 3. 상대팀 데이터 반영
+                document.getElementById('opp-name-display').innerText = data.opp.name || "Away";
+                document.getElementById('opp-score').innerText = data.opp.pts || 0;
+                document.getElementById('opp-foul-label').innerText = `TF: ${data.opp.tf || 0}`;
+                document.getElementById('opp-foul-label').className = (data.opp.tf || 0) >= 5 ? "text-[10px] text-red-500 mt-3 font-mono font-bold animate-bonus" : "text-[10px] text-slate-500 mt-3 font-mono";
+
+                // 4. 테이블 렌더링
+                tbody.innerHTML = data.stats.map(p => {
                     const getRate = (m, a) => a > 0 ? Math.round((m / a) * 100) : 0;
                     const rowPER = parseFloat(p.PER || 0);
-                    let grade = ""; let gradeStyle = "";
-                    if (rowPER >= 20) { grade = "최고"; gradeStyle = "grade-best"; }
-                    else if (rowPER >= 15) { grade = "준수"; gradeStyle = "grade-good"; }
-                    else if (rowPER >= 10) { grade = "1인분"; gradeStyle = "grade-normal"; }
-                    else { grade = "노력"; gradeStyle = "grade-effort"; }
-
-                    const foulClass = p.PF >= 4 ? 'foul-danger' : '';
-
-                    const row = `
+                    const perfStyle = rowPER >= 15 ? "text-green-400 font-bold" : "text-slate-400";
+                    return `
                         <tr>
                             <td class="text-slate-500 font-mono">${p.No || '-'}</td>
-                            <td class="name-col">${p.Name}</td>
-                            <td class="${foulClass} font-bold">${p.PF || 0}</td>
-                            <td class="text-slate-500 font-mono">${p.MIN || 0}</td>
-                            <td class="pts-col">${p.PTS || 0}</td>
-                            <td class="text-slate-300 font-mono">${p.FGM || 0}/${p.FGA || 0}</td>
-                            <td class="text-xs text-slate-500">${getRate(p.FGM, p.FGA)}%</td>
-                            <td class="text-slate-300 font-mono">${p.TPM || 0}/${p.TPA || 0}</td>
-                            <td class="text-xs text-slate-500">${getRate(p.TPM, p.TPA)}%</td>
-                            <td class="text-slate-300 font-mono">${p.FTM || 0}/${p.FTA || 0}</td>
-                            <td class="text-xs text-slate-500">${getRate(p.FTM, p.FTA)}%</td>
-                            <td>${p.OR || 0}</td>
-                            <td>${p.DR || 0}</td>
-                            <td class="font-bold text-slate-200">${p.REB || 0}</td>
-                            <td>${p.AST || 0}</td>
-                            <td>${p.STL || 0}</td>
-                            <td>${p.BLK || 0}</td>
-                            <td>${p.TO || 0}</td>
-                            <td class="border-l border-[#30363d] px-4">
-                                <span class="font-black text-base ${gradeStyle}">${rowPER.toFixed(1)}</span>
-                                <span class="text-[10px] ${gradeStyle} ml-1 tracking-tighter">(${grade})</span>
-                            </td>
+                            <td class="name-col text-left px-4">${p.Name}</td>
+                            <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF || 0}</td>
+                            <td class="text-slate-500 font-mono text-[11px]">${p.MIN || '-'}</td>
+                            <td class="pts-col text-white">${p.PTS || 0}</td>
+                            <td class="text-slate-400 font-mono">${p.FGM}/${p.FGA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FGM, p.FGA)}%</td>
+                            <td class="text-slate-400 font-mono">${p.TPM}/${p.TPA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.TPM, p.TPA)}%</td>
+                            <td class="text-slate-400 font-mono">${p.FTM}/${p.FTA}</td>
+                            <td class="text-[10px] text-slate-600 font-mono">${getRate(p.FTM, p.FTA)}%</td>
+                            <td>${p.OR}</td><td>${p.DR}</td>
+                            <td class="text-white font-bold">${p.REB}</td>
+                            <td class="text-slate-500">${p.AST || '-'}</td>
+                            <td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
+                            <td class="border-l border-slate-800 ${perfStyle}">${rowPER.toFixed(1)}</td>
                         </tr>
                     `;
-                    tbody.innerHTML += row;
-                });
+                }).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500">데이터를 불러오지 못했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="19" class="py-10 text-red-500 text-center">데이터 로드 실패</td></tr>';
             }
-        }
-
-        function updateTeamFoulUI(count, qName) {
-            const display = document.getElementById('team-foul-display');
-            if (qName === 'TOTAL') { display.innerHTML = ''; return; }
-
-            const isBonus = count >= 5;
-            const qKoran = qName.replace('Q', '쿼터'); // 팀파울 라벨도 한글화
-
-            display.innerHTML = `
-                <div class="flex items-center gap-4 bg-[#161b22] px-6 py-2.5 rounded-full border border-slate-700 shadow-xl">
-                    <span class="text-xs font-black text-slate-400 tracking-widest">${qKoran} ${isBonus ? '<span class="animate-bonus text-red-500">BONUS</span>' : '팀파울'}</span>
-                    <div class="flex gap-1.5">
-                        ${[1, 2, 3, 4, 5].map(i => `
-                            <div class="w-3 h-3 rounded-full ${i <= count ? (i >= 5 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-orange-500') : 'bg-slate-800'} transition-all"></div>
-                        `).join('')}
-                    </div>
-                    <span class="text-xl font-black ${isBonus ? 'text-red-500' : 'text-white'} ml-1">${count}</span>
-                </div>
-            `;
-        }
-
-        function updateButtonUI(activeQ) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText === activeQ || (btn.innerText === '전체' && activeQ === 'TOTAL'));
-            });
         }
     </script>
 </body>
