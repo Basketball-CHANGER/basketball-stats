@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Basketball Performance Analytics</title>
+    <title>Elite Basketball Analytics & Team Foul</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
@@ -16,21 +16,36 @@
         .name-col { color: #58a6ff; font-weight: bold; text-align: left; padding-left: 16px; min-width: 110px; }
         .pts-col { color: #ffffff; font-weight: 800; font-size: 0.95rem; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 4px; }
+        
         /* PER 등급별 스타일 */
         .grade-best { color: #f2ca33; font-weight: 900; text-decoration: underline; }
         .grade-good { color: #34d399; font-weight: bold; }
         .grade-normal { color: #e2e8f0; }
         .grade-effort { color: #4b5563; font-style: italic; }
+
+        /* 팀파울 전광판 애니메이션 */
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-bonus { animation: pulse-red 1s infinite; }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-[1450px] mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <!-- 헤더 및 팀파울 섹션 -->
+        <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-6">
             <div>
-                <h1 class="text-2xl font-bold text-white tracking-tight">🏀 TEAM PERFORMANCE ANALYTICS</h1>
-                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase">Loading View...</p>
+                <h1 class="text-2xl font-bold text-white tracking-tight text-center lg:text-left">🏀 TEAM PERFORMANCE ANALYTICS</h1>
+                <p id="current-view-title" class="text-blue-400 text-sm font-bold mt-1 uppercase text-center lg:text-left">Loading View...</p>
+            </div>
+
+            <!-- 팀파울 현황판 -->
+            <div id="team-foul-display">
+                <!-- JS에서 동적으로 생성됨 -->
             </div>
             
+            <!-- 쿼터 선택 내비게이션 -->
             <div class="flex bg-[#161b22] p-1 rounded-lg border border-[#30363d]">
                 <button onclick="loadQuarter('TOTAL')" class="nav-btn active px-5 py-2 rounded-md text-sm mr-1">전체</button>
                 <button onclick="loadQuarter('1Q')" class="nav-btn px-5 py-2 rounded-md text-sm mr-1">1Q</button>
@@ -40,6 +55,7 @@
             </div>
         </div>
         
+        <!-- 데이터 테이블 -->
         <div class="table-wrapper overflow-x-auto shadow-2xl">
             <table class="w-full text-center border-collapse min-w-[1300px]">
                 <thead>
@@ -65,11 +81,11 @@
                     </tr>
                 </thead>
                 <tbody id="stats-body">
-                    <tr><td colspan="18" class="py-32 text-slate-500 animate-pulse">데이터를 실시간으로 분석하는 중입니다...</td></tr>
+                    <tr><td colspan="18" class="py-32 text-slate-500 animate-pulse text-center">데이터를 분석 중입니다...</td></tr>
                 </tbody>
             </table>
         </div>
-        <p class="mt-4 text-xs text-slate-500 text-center uppercase tracking-widest">Calculated by Advanced Basketball Efficiency Formula</p>
+        <p class="mt-4 text-xs text-slate-500 text-center uppercase tracking-widest italic">Calculated by Advanced Basketball Efficiency Formula v2.0</p>
     </div>
 
     <script>
@@ -82,13 +98,17 @@
             document.getElementById('current-view-title').innerText = `Viewing: ${qName} Statistics`;
             
             const tbody = document.getElementById('stats-body');
-            tbody.innerHTML = '<tr><td colspan="18" class="py-32 text-slate-500">불러오는 중...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="18" class="py-32 text-slate-500 text-center">데이터를 불러오는 중...</td></tr>';
 
             try {
                 const targetUrl = `${BASE_API_URL}?q=${qName}`;
                 const response = await fetch(targetUrl);
                 const data = await response.json();
                 
+                // 팀파울 계산 (개인 파울의 합)
+                const teamFouls = data.reduce((acc, p) => acc + (parseInt(p.PF) || 0), 0);
+                updateTeamFoulUI(teamFouls, qName);
+
                 tbody.innerHTML = '';
 
                 data.forEach(p => {
@@ -98,7 +118,6 @@
                     const tpRate = getRate(p.TPM, p.TPA);
                     const ftRate = getRate(p.FTM, p.FTA);
                     
-                    // --- [PER 및 등급 계산 로직] ---
                     const positiveStats = (p.PTS || 0) + (p.REB || 0) + (p.AST || 0) + (p.STL || 0) + (p.BLK || 0);
                     const fgMiss = (p.FGA || 0) - (p.FGM || 0);
                     const ftMiss = (p.FTA || 0) - (p.FTM || 0);
@@ -111,7 +130,6 @@
                     else if (calculatedPER >= 15) { grade = "준수"; gradeStyle = "grade-good"; }
                     else if (calculatedPER >= 10) { grade = "1인분"; gradeStyle = "grade-normal"; }
                     else { grade = "노력"; gradeStyle = "grade-effort"; }
-                    // --- [로직 끝] ---
 
                     const foulClass = p.PF >= 4 ? 'foul-danger' : '';
 
@@ -143,8 +161,31 @@
                     tbody.innerHTML += row;
                 });
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="18" class="py-10 text-red-500">API 연결에 실패했습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="18" class="py-10 text-red-500 text-center">API 연결 실패. 시트 설정을 확인하세요.</td></tr>';
             }
+        }
+
+        function updateTeamFoulUI(count, qName) {
+            const display = document.getElementById('team-foul-display');
+            if (qName === 'TOTAL') {
+                display.innerHTML = ''; // 전체 보기에서는 팀파울 숨김
+                return;
+            }
+
+            const isBonus = count >= 5;
+            const statusLabel = isBonus ? '<span class="animate-bonus text-red-500">BONUS</span>' : 'TEAM FOUL';
+            
+            display.innerHTML = `
+                <div class="flex items-center gap-4 bg-[#161b22] px-6 py-3 rounded-full border border-slate-700 shadow-lg">
+                    <span class="text-xs font-black text-slate-400 tracking-widest">${qName} ${statusLabel}</span>
+                    <div class="flex gap-1.5">
+                        ${[1, 2, 3, 4, 5].map(i => `
+                            <div class="w-3.5 h-3.5 rounded-full ${i <= count ? (i >= 5 ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]' : 'bg-orange-500') : 'bg-slate-800'} transition-all duration-300"></div>
+                        `).join('')}
+                    </div>
+                    <span class="text-2xl font-black ${isBonus ? 'text-red-500' : 'text-white'} ml-2">${count}</span>
+                </div>
+            `;
         }
 
         function updateButtonUI(activeQ) {
