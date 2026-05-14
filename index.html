@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <!-- 스코어보드 (HOME / AWAY로 수정) -->
+        <!-- 스코어보드 -->
         <div class="grid grid-cols-3 gap-4 bg-[#161b22] p-8 rounded-[32px] border border-[#30363d] items-center mb-6">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-xs mb-2 uppercase tracking-widest">HOME</p>
@@ -115,7 +115,7 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbw-eFSKsvQEutAztk6y_ulE5YJrN5aOIysRhCBLGP94OKS9FBLL-xdjJXd4Mr9SkoZh/exec";
+        const BASE_API_URL = "GAS_배포_URL_입력";
 
         const calcPct = (m, a) => {
             const made = parseFloat(m) || 0;
@@ -134,14 +134,12 @@
                 const response = await fetch(`${BASE_API_URL}?q=${q}`);
                 const data = await response.json();
 
-                // 경기 정보 자리에 파일 제목 출력
                 document.getElementById('match-title-display').innerText = data.fileName || "기록지";
 
-                // 1. 우리팀 요약 (Home)
                 if (data.teamTotal) {
                     const t = data.teamTotal;
                     document.getElementById('our-score').innerText = t.PTS || 0;
-                    document.getElementById('home-f-2p').innerText = `${t.FG2M || 0}/${t.FG2A || 0}`;
+                    document.getElementById('home-f-2p').innerText = `${t.FGM || 0}/${t.FGA || 0}`;
                     document.getElementById('home-f-2p-pct').innerText = `${t.FG2_PCT || 0}%`;
                     document.getElementById('home-f-3p').innerText = `${t.TPM || 0}/${t.TPA || 0}`;
                     document.getElementById('home-f-3p-pct').innerText = `${t.TP_PCT || 0}%`;
@@ -153,7 +151,6 @@
                     document.getElementById('home-f-to').innerText = t.TO || 0;
                 }
 
-                // 2. 상대팀 요약 (Away)
                 if (data.opp) {
                     const o = data.opp;
                     document.getElementById('opp-score').innerText = o.PTS || 0;
@@ -175,18 +172,35 @@
                     document.getElementById('opp-f-to').innerText = o.TO || 0;
                 }
 
-                // 3. 우리팀 팀 파울
                 const teamStats = data.stats || [];
                 const totalFoul = teamStats.reduce((acc, p) => acc + (parseFloat(p.PF) || 0), 0);
                 const ourFoulElem = document.getElementById('our-foul-val');
                 ourFoulElem.innerText = totalFoul;
                 ourFoulElem.className = totalFoul >= 5 ? "text-2xl font-black text-red-500" : "text-2xl font-black text-white";
 
-                // 4. 개별 선수 테이블
                 const tbody = document.getElementById('stats-body');
                 tbody.innerHTML = teamStats.map(p => {
                     const per = parseFloat(p.PER || 0);
-                    let grade = per >= 25 ? "ACE" : per >= 15 ? "GOOD" : "ROLE";
+                    let grade = "";
+                    let gradeClass = "";
+
+                    if (per >= 30) {
+                        grade = "MVP";
+                        gradeClass = "text-yellow-400 font-black ring-1 ring-yellow-400/50 px-1 rounded";
+                    } else if (per >= 20) {
+                        grade = "EXCELLENT";
+                        gradeClass = "text-green-400 font-bold";
+                    } else if (per >= 10) {
+                        grade = "GREAT";
+                        gradeClass = "text-blue-400 font-bold";
+                    } else if (per >= 5) {
+                        grade = "GOOD";
+                        gradeClass = "text-slate-300";
+                    } else {
+                        grade = "BAD";
+                        gradeClass = "text-red-500/70";
+                    }
+
                     return `
                         <tr>
                             <td>${p.No}</td>
@@ -200,7 +214,7 @@
                             <td>${p.OR}</td><td>${p.DR}</td><td class="text-white font-bold">${p.REB}</td>
                             <td>${p.AST}</td><td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
                             <td class="text-yellow-500 font-black">${per.toFixed(1)}</td>
-                            <td class="text-xs italic">${grade}</td>
+                            <td class="text-[10px] italic ${gradeClass}">${grade}</td>
                         </tr>
                     `;
                 }).join('');
