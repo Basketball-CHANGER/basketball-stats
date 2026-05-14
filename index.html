@@ -14,67 +14,66 @@
             box-shadow: 0 0 12px rgba(63, 185, 80, 0.4);
             font-weight: bold;
         }
-        .table-wrapper { margin-top: 20px; background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; overflow: hidden; }
+        .table-wrapper { margin-top: 16px; background-color: #161b22; border: 1px solid #30363d; border-radius: 16px; overflow: hidden; }
         th { background-color: #1f2937; color: #8b949e; font-size: 0.7rem; padding: 10px 4px; border-bottom: 2px solid #30363d; }
         td { padding: 8px 6px; border-bottom: 1px solid #21262d; font-size: 0.85rem; text-align: center; }
-        .name-col { color: #58a6ff; font-weight: bold; text-align: center !important; width: 130px; min-width: 130px; }
+        .name-col { color: #58a6ff; font-weight: bold; text-align: center !important; width: 120px; min-width: 120px; }
         .foul-danger { color: #f85149; font-weight: bold; background: rgba(248, 81, 73, 0.1); border-radius: 6px; }
         
-        /* 대시보드 콤팩트 스타일 수정 */
-        .stats-dashboard { margin-top: 16px; border-radius: 12px; padding: 12px 20px; border: 1px solid #30363d; }
+        .stats-dashboard { margin-top: 12px; border-radius: 12px; padding: 10px 20px; border: 1px solid #30363d; }
         .home-dashboard { background: linear-gradient(90deg, #161b22 0%, #0d1424 100%); border-left: 4px solid #3b82f6; }
         .away-dashboard { background: linear-gradient(90deg, #1c1111 0%, #161b22 100%); border-left: 4px solid #ef4444; }
         
-        .stat-grid { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.5rem; align-items: center; }
-        .stat-box { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
-        .stat-label { color: #8b949e; font-size: 11px; font-weight: bold; margin-bottom: 0px; text-transform: uppercase; }
-        .stat-value { color: white; font-weight: 800; font-size: 1.1rem; line-height: 1.2; }
-        .stat-pct { font-size: 10px; font-weight: bold; margin-top: -2px; }
+        .stat-grid { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.2rem; align-items: center; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; min-width: 55px; }
+        .stat-label { color: #8b949e; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: -2px; }
+        .stat-value { color: white; font-weight: 800; font-size: 1.05rem; line-height: 1.1; }
+        .stat-pct { font-size: 9px; font-weight: bold; margin-top: -1px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-6">
     <div class="max-w-[1440px] mx-auto">
-        <!-- 헤더 및 쿼터 버튼 -->
+        <!-- 헤더 -->
         <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 <h1 class="text-3xl font-black text-white italic uppercase">Changer</h1>
-                <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-[11px] font-bold px-3 py-1 rounded-full border border-blue-800/50">SYNCING...</span>
+                <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-800/50">SYNCING...</span>
             </div>
-            <div class="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d] overflow-x-auto">
-                <button onclick="loadData('TOTAL')" class="q-btn active px-4 py-2 rounded-lg text-xs transition-all">전체</button>
-                <button onclick="loadData('1Q')" class="q-btn px-4 py-2 rounded-lg text-xs transition-all">1Q</button>
-                <button onclick="loadData('2Q')" class="q-btn px-4 py-2 rounded-lg text-xs transition-all">2Q</button>
-                <button onclick="loadData('3Q')" class="q-btn px-4 py-2 rounded-lg text-xs transition-all">3Q</button>
-                <button onclick="loadData('4Q')" class="q-btn px-4 py-2 rounded-lg text-xs transition-all">4Q</button>
+            <div class="flex bg-[#161b22] p-1 rounded-xl border border-[#30363d]">
+                <button onclick="loadData('TOTAL')" class="q-btn px-4 py-1.5 rounded-lg text-xs transition-all">전체</button>
+                <button onclick="loadData('1Q')" class="q-btn px-4 py-1.5 rounded-lg text-xs transition-all">1Q</button>
+                <button onclick="loadData('2Q')" class="q-btn px-4 py-1.5 rounded-lg text-xs transition-all">2Q</button>
+                <button onclick="loadData('3Q')" class="q-btn px-4 py-1.5 rounded-lg text-xs transition-all">3Q</button>
+                <button onclick="loadData('4Q')" class="q-btn px-4 py-1.5 rounded-lg text-xs transition-all">4Q</button>
             </div>
         </div>
 
         <!-- 스코어보드 -->
-        <div class="grid grid-cols-3 gap-4 bg-[#161b22] p-6 rounded-[24px] border border-[#30363d] items-center mb-6">
+        <div class="grid grid-cols-3 gap-4 bg-[#161b22] p-5 rounded-[24px] border border-[#30363d] items-center mb-4">
             <div class="text-center">
-                <p class="text-blue-400 font-black text-xs mb-1 uppercase tracking-widest">Home</p>
-                <p id="our-score" class="text-6xl md:text-7xl font-black text-white mb-2">0</p>
-                <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-lg font-black">TF</span><span id="our-foul-val" class="text-lg font-black text-white">0</span></div>
-            </div>
-            <div class="text-center border-x border-slate-800/50 px-2">
-                <p id="current-q-label" class="text-yellow-500 text-3xl font-black italic mb-1 uppercase">TOTAL</p>
-                <p class="text-slate-600 text-[10px] font-bold tracking-[0.4em]">VS</p>
+                <p class="text-blue-400 font-black text-[10px] mb-1 uppercase tracking-widest">Home</p>
+                <p id="our-score" class="text-6xl font-black text-white leading-none mb-2">0</p>
+                <div class="flex justify-center items-baseline gap-1"><span class="text-slate-500 text-sm font-black">TF</span><span id="our-foul-val" class="text-lg font-black text-white">0</span></div>
             </div>
             <div class="text-center">
-                <p id="opp-name-display" class="text-red-400 font-black text-xs mb-1 uppercase tracking-widest">Away</p>
-                <p id="opp-score" class="text-6xl md:text-7xl font-black text-white mb-2">0</p>
-                <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-lg font-black">TF</span><span id="opp-foul-val" class="text-lg font-black text-white">0</span></div>
+                <p id="current-q-label" class="text-yellow-500 text-2xl font-black italic mb-0 uppercase">TOTAL</p>
+                <p class="text-slate-600 text-[9px] font-bold tracking-[0.4em]">V S</p>
+            </div>
+            <div class="text-center">
+                <p id="opp-name-display" class="text-red-400 font-black text-[10px] mb-1 uppercase tracking-widest">Away</p>
+                <p id="opp-score" class="text-6xl font-black text-white leading-none mb-2">0</p>
+                <div class="flex justify-center items-baseline gap-1"><span class="text-slate-500 text-sm font-black">TF</span><span id="opp-foul-val" class="text-lg font-black text-white">0</span></div>
             </div>
         </div>
 
-        <!-- [수정] 콤팩트 홈팀 대시보드 -->
-        <div class="stats-dashboard home-dashboard mb-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-blue-500 font-black text-lg italic uppercase whitespace-nowrap">HOME SUMMARY</span>
-                <div class="stat-grid w-full">
-                    <div class="stat-box"><p class="stat-label">2P</p><p id="home-f-2p" class="stat-value text-sm">0/0</p><p id="home-f-2p-pct" class="stat-pct text-blue-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">3P</p><p id="home-f-3p" class="stat-value text-sm">0/0</p><p id="home-f-3p-pct" class="stat-pct text-blue-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">FT</p><p id="home-f-ft" class="stat-value text-sm">0/0</p><p id="home-f-ft-pct" class="stat-pct text-blue-400">0%</p></div>
+        <!-- HOME SUMMARY -->
+        <div class="stats-dashboard home-dashboard mb-3">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+                <span class="text-blue-500 font-black text-md italic uppercase">HOME SUMMARY</span>
+                <div class="stat-grid">
+                    <div class="stat-box"><p class="stat-label">2P</p><p id="home-f-2p" class="stat-value">0/0</p><p id="home-f-2p-pct" class="stat-pct text-blue-400">0%</p></div>
+                    <div class="stat-box"><p class="stat-label">3P</p><p id="home-f-3p" class="stat-value">0/0</p><p id="home-f-3p-pct" class="stat-pct text-blue-400">0%</p></div>
+                    <div class="stat-box"><p class="stat-label">FT</p><p id="home-f-ft" class="stat-value">0/0</p><p id="home-f-ft-pct" class="stat-pct text-blue-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">REB</p><p id="home-f-reb" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">AST</p><p id="home-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="home-f-stl" class="stat-value">0</p></div>
@@ -83,8 +82,8 @@
             </div>
         </div>
 
-        <!-- 메인 상세 테이블 -->
-        <div class="table-wrapper overflow-x-auto mb-6">
+        <!-- 상세 테이블 -->
+        <div class="table-wrapper overflow-x-auto mb-4">
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
                     <tr>
@@ -98,14 +97,14 @@
             </table>
         </div>
 
-        <!-- [수정] 콤팩트 상대팀 대시보드 -->
+        <!-- AWAY SUMMARY -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-red-500 font-black text-lg italic uppercase whitespace-nowrap"><span id="opp-footer-name">AWAY</span> SUMMARY</span>
-                <div class="stat-grid w-full">
-                    <div class="stat-box"><p class="stat-label">2P</p><p id="opp-f-2p" class="stat-value text-sm">0/0</p><p id="opp-f-2p-pct" class="stat-pct text-red-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value text-sm">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">FT</p><p id="opp-f-ft" class="stat-value text-sm">0/0</p><p id="opp-f-ft-pct" class="stat-pct text-red-400">0%</p></div>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+                <span class="text-red-500 font-black text-md italic uppercase"><span id="opp-footer-name">AWAY</span> SUMMARY</span>
+                <div class="stat-grid">
+                    <div class="stat-box"><p class="stat-label">2P</p><p id="opp-f-2p" class="stat-value">0/0</p><p id="opp-f-2p-pct" class="stat-pct text-red-400">0%</p></div>
+                    <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
+                    <div class="stat-box"><p class="stat-label">FT</p><p id="opp-f-ft" class="stat-value">0/0</p><p id="opp-f-ft-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">REB</p><p id="opp-f-reb" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">AST</p><p id="opp-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="opp-f-stl" class="stat-value">0</p></div>
@@ -116,7 +115,10 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbybFDJclkKoRF5B5wUslrdrmIEsOlzEIL5fvJS0GoBLGLjDFjOSQVdX2U3KZWdQ_ZL5/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxc0lV6Cd53IprkTPi7oe234xkB8LkHCgisiJAt_hzF7q1fhoxNFd9lFgmCsuu5cT2r/exec";
+
+        // 확률 계산 헬퍼 (NaN 방지)
+        const calcPct = (m, a) => (a > 0) ? Math.round((m / a) * 100) : 0;
 
         async function loadData(q) {
             document.querySelectorAll('.q-btn').forEach(btn => {
@@ -131,49 +133,49 @@
 
                 document.getElementById('match-title-display').innerText = data.matchTitle || "경기 정보 없음";
 
-                // 1. 우리팀 요약 (teamTotal)
+                // 1. 우리팀 요약
                 if (data.teamTotal) {
                     const t = data.teamTotal;
-                    document.getElementById('our-score').innerText = t.pts;
-                    document.getElementById('home-f-2p').innerText = `${t.fg2m}/${t.fg2a}`;
-                    document.getElementById('home-f-2p-pct').innerText = `${t.fg2_pct}%`;
-                    document.getElementById('home-f-3p').innerText = `${t.tpm}/${t.tpa}`;
-                    document.getElementById('home-f-3p-pct').innerText = `${t.tp_pct}%`;
-                    document.getElementById('home-f-ft').innerText = `${t.ftm}/${t.fta}`;
-                    document.getElementById('home-f-ft-pct').innerText = `${t.ft_pct}%`;
-                    document.getElementById('home-f-reb').innerText = t.reb;
-                    document.getElementById('home-f-ast').innerText = t.ast;
-                    document.getElementById('home-f-stl').innerText = t.stl;
-                    document.getElementById('home-f-to').innerText = t.to;
+                    document.getElementById('our-score').innerText = t.pts || 0;
+                    document.getElementById('home-f-2p').innerText = `${t.fg2m || 0}/${t.fg2a || 0}`;
+                    document.getElementById('home-f-2p-pct').innerText = `${t.fg2_pct || 0}%`;
+                    document.getElementById('home-f-3p').innerText = `${t.tpm || 0}/${t.tpa || 0}`;
+                    document.getElementById('home-f-3p-pct').innerText = `${t.tp_pct || 0}%`;
+                    document.getElementById('home-f-ft').innerText = `${t.ftm || 0}/${t.fta || 0}`;
+                    document.getElementById('home-f-ft-pct').innerText = `${t.ft_pct || 0}%`;
+                    document.getElementById('home-f-reb').innerText = t.reb || 0;
+                    document.getElementById('home-f-ast').innerText = t.ast || 0;
+                    document.getElementById('home-f-stl').innerText = t.stl || 0;
+                    document.getElementById('home-f-to').innerText = t.to || 0;
                 }
 
-                // 2. 상대팀 요약 (opp)
+                // 2. 상대팀 요약
                 if (data.opp) {
                     const o = data.opp;
-                    document.getElementById('opp-name-display').innerText = o.name;
-                    document.getElementById('opp-footer-name').innerText = o.name;
-                    document.getElementById('opp-score').innerText = o.pts;
+                    document.getElementById('opp-name-display').innerText = o.name || "상대팀";
+                    document.getElementById('opp-footer-name').innerText = o.name || "상대팀";
+                    document.getElementById('opp-score').innerText = o.pts || 0;
                     
                     const oppFoulVal = o.tf || 0;
                     const oppFoulElem = document.getElementById('opp-foul-val');
                     oppFoulElem.innerText = oppFoulVal;
                     oppFoulElem.className = oppFoulVal >= 5 ? "text-lg font-black text-red-500" : "text-lg font-black text-white";
 
-                    document.getElementById('opp-f-2p').innerText = `${o.fg2m}/${o.fg2a}`;
-                    document.getElementById('opp-f-2p-pct').innerText = `${o.fg2_pct}%`;
-                    document.getElementById('opp-f-3p').innerText = `${o.tpm}/${o.tpa}`;
-                    document.getElementById('opp-f-3p-pct').innerText = `${o.tp_pct}%`;
-                    document.getElementById('opp-f-ft').innerText = `${o.ftm}/${o.fta}`;
-                    document.getElementById('opp-f-ft-pct').innerText = `${o.ft_pct}%`;
-                    document.getElementById('opp-f-reb').innerText = o.reb;
-                    document.getElementById('opp-f-ast').innerText = o.ast;
-                    document.getElementById('opp-f-stl').innerText = o.stl;
-                    document.getElementById('opp-f-to').innerText = o.to;
+                    document.getElementById('opp-f-2p').innerText = `${o.fg2m || 0}/${o.fg2a || 0}`;
+                    document.getElementById('opp-f-2p-pct').innerText = `${o.fg2_pct || 0}%`;
+                    document.getElementById('opp-f-3p').innerText = `${o.tpm || 0}/${o.tpa || 0}`;
+                    document.getElementById('opp-f-3p-pct').innerText = `${o.tp_pct || 0}%`;
+                    document.getElementById('opp-f-ft').innerText = `${o.ftm || 0}/${o.fta || 0}`;
+                    document.getElementById('opp-f-ft-pct').innerText = `${o.ft_pct || 0}%`;
+                    document.getElementById('opp-f-reb').innerText = o.reb || 0;
+                    document.getElementById('opp-f-ast').innerText = o.ast || 0;
+                    document.getElementById('opp-f-stl').innerText = o.stl || 0;
+                    document.getElementById('opp-f-to').innerText = o.to || 0;
                 }
 
                 // 3. 우리팀 팀 파울
-                const teamStats = data.stats;
-                const totalFoul = teamStats.reduce((acc, p) => acc + p.PF, 0);
+                const teamStats = data.stats || [];
+                const totalFoul = teamStats.reduce((acc, p) => acc + (p.PF || 0), 0);
                 const ourFoulElem = document.getElementById('our-foul-val');
                 ourFoulElem.innerText = totalFoul;
                 ourFoulElem.className = totalFoul >= 5 ? "text-lg font-black text-red-500" : "text-lg font-black text-white";
@@ -183,10 +185,10 @@
                 tbody.innerHTML = teamStats.map(p => {
                     const per = parseFloat(p.PER || 0);
                     let grade = per >= 25 ? "ACE" : per >= 15 ? "GOOD" : "ROLE";
-                    const m2 = p.FGM - p.TPM;
-                    const a2 = p.FGA - p.TPA;
-                    const p2pct = a2 > 0 ? Math.round((m2/a2)*100) : 0;
-
+                    
+                    const m2 = (p.FGM || 0) - (p.TPM || 0);
+                    const a2 = (p.FGA || 0) - (p.TPA || 0);
+                    
                     return `
                         <tr>
                             <td>${p.No}</td>
@@ -194,9 +196,9 @@
                             <td class="${p.PF >= 4 ? 'foul-danger' : ''}">${p.PF}</td>
                             <td>${p.MIN}</td>
                             <td class="text-white font-bold">${p.PTS}</td>
-                            <td>${m2}/${a2}</td><td>${p2pct}%</td>
-                            <td>${p.TPM}/${p.TPA}</td><td>${Math.round(p.TP_PCT)}%</td>
-                            <td>${p.FTM}/${p.FTA}</td><td>${Math.round(p.FT_PCT)}%</td>
+                            <td>${m2}/${a2}</td><td>${calcPct(m2, a2)}%</td>
+                            <td>${p.TPM || 0}/${p.TPA || 0}</td><td>${calcPct(p.TPM, p.TPA)}%</td>
+                            <td>${p.FTM || 0}/${p.FTA || 0}</td><td>${calcPct(p.FTM, p.FTA)}%</td>
                             <td>${p.OR}</td><td>${p.DR}</td><td class="text-white font-bold">${p.REB}</td>
                             <td>${p.AST}</td><td>${p.STL}</td><td>${p.BLK}</td><td>${p.TO}</td>
                             <td class="text-yellow-500 font-black">${per.toFixed(1)}</td>
