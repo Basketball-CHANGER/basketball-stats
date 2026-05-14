@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHANGER Stats Board</title>
+    <title>CHANGER 기록지</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
@@ -36,8 +36,8 @@
         <!-- 헤더 -->
         <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
             <div class="flex items-center gap-4">
-                <h1 class="text-3xl font-black text-white italic uppercase">Changer</h1>
-                <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-xs font-bold px-4 py-1.5 rounded-full border border-blue-800/50">SYNCING...</span>
+                <h1 class="text-3xl font-black text-white italic uppercase">Changer 기록지</h1>
+                <span id="match-title-display" class="bg-blue-900/40 text-blue-400 text-xs font-bold px-4 py-1.5 rounded-full border border-blue-800/50">파일 로딩 중...</span>
             </div>
             <div class="flex bg-[#161b22] p-1.5 rounded-xl border border-[#30363d]">
                 <button onclick="loadData('TOTAL')" class="q-btn px-5 py-2 rounded-lg text-sm transition-all">전체</button>
@@ -48,10 +48,10 @@
             </div>
         </div>
 
-        <!-- 스코어보드 -->
+        <!-- 스코어보드 (HOME / AWAY로 수정) -->
         <div class="grid grid-cols-3 gap-4 bg-[#161b22] p-8 rounded-[32px] border border-[#30363d] items-center mb-6">
             <div class="text-center">
-                <p class="text-blue-400 font-black text-xs mb-2 uppercase tracking-widest">Home</p>
+                <p class="text-blue-400 font-black text-xs mb-2 uppercase tracking-widest">HOME</p>
                 <p id="our-score" class="text-7xl font-black text-white leading-none mb-3">0</p>
                 <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-xl font-black">TF</span><span id="our-foul-val" class="text-2xl font-black text-white">0</span></div>
             </div>
@@ -60,7 +60,7 @@
                 <p class="text-slate-600 text-xs font-bold tracking-[0.5em]">V S</p>
             </div>
             <div class="text-center">
-                <p id="opp-name-display" class="text-red-400 font-black text-xs mb-2 uppercase tracking-widest">Away</p>
+                <p class="text-red-400 font-black text-xs mb-2 uppercase tracking-widest">AWAY</p>
                 <p id="opp-score" class="text-7xl font-black text-white leading-none mb-3">0</p>
                 <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-xl font-black">TF</span><span id="opp-foul-val" class="text-2xl font-black text-white">0</span></div>
             </div>
@@ -100,7 +100,7 @@
         <!-- AWAY SUMMARY -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-red-500 font-black text-xl italic uppercase"><span id="opp-footer-name">AWAY</span> SUMMARY</span>
+                <span class="text-red-500 font-black text-xl italic uppercase">AWAY SUMMARY</span>
                 <div class="stat-grid">
                     <div class="stat-box"><p class="stat-label">2P</p><p id="opp-f-2p" class="stat-value">0/0</p><p id="opp-f-2p-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
@@ -115,7 +115,7 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwR0He56kxFij9AU01Yp68vOMuT7W9LiYr0mgvpjjXekxrPLq4_G2bEOMOye7Pg3NDB/exec";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbw-eFSKsvQEutAztk6y_ulE5YJrN5aOIysRhCBLGP94OKS9FBLL-xdjJXd4Mr9SkoZh/exec";
 
         const calcPct = (m, a) => {
             const made = parseFloat(m) || 0;
@@ -134,9 +134,10 @@
                 const response = await fetch(`${BASE_API_URL}?q=${q}`);
                 const data = await response.json();
 
-                document.getElementById('match-title-display').innerText = data.matchTitle || "경기 정보 없음";
+                // 경기 정보 자리에 파일 제목 출력
+                document.getElementById('match-title-display').innerText = data.fileName || "기록지";
 
-                // 1. 우리팀 요약 (Home) - 대문자 Key 적용
+                // 1. 우리팀 요약 (Home)
                 if (data.teamTotal) {
                     const t = data.teamTotal;
                     document.getElementById('our-score').innerText = t.PTS || 0;
@@ -152,11 +153,9 @@
                     document.getElementById('home-f-to').innerText = t.TO || 0;
                 }
 
-                // 2. 상대팀 요약 (Away) - 대문자 Key 적용
+                // 2. 상대팀 요약 (Away)
                 if (data.opp) {
                     const o = data.opp;
-                    document.getElementById('opp-name-display').innerText = o.NAME || "상대팀";
-                    document.getElementById('opp-footer-name').innerText = o.NAME || "상대팀";
                     document.getElementById('opp-score').innerText = o.PTS || 0;
                     
                     const oppFoulVal = o.PF || 0;
