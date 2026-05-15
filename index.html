@@ -145,32 +145,32 @@
 
         // 1. 경기 목록 드롭다운 데이터 불러오기
         async function loadMatchList() {
-            try {
-                const response = await fetch(`${BASE_API_URL}?action=get_list`);
-                const data = await response.json();
-                const selector = document.getElementById('match-selector');
-                
-                if (data.matchList && data.matchList.length > 0) {
-                    selector.innerHTML = '<option value="">경기를 선택하세요</option>';
-                    data.matchList.forEach(match => {
-                        const opt = document.createElement('option');
-                        opt.value = match.fileId;
-                        opt.innerText = `${match.date} vs ${match.oppName}`;
-                        selector.appendChild(opt);
-                    });
-                    
-                    // 첫 번째 경기 자동 로드 (선택 사항)
-                    currentFileId = data.matchList[0].fileId;
-                    selector.value = currentFileId;
-                    loadData('TOTAL');
-                } else {
-                    selector.innerHTML = '<option value="">등록된 경기가 없습니다</option>';
-                }
-            } catch (err) {
-                console.error("목록 로드 실패:", err);
-                document.getElementById('match-selector').innerHTML = '<option value="">목록 오류</option>';
+    try {
+        const response = await fetch(`${BASE_API_URL}?action=get_list`);
+        const data = await response.json();
+        const selector = document.getElementById('match-selector');
+        
+        if (data.matchList && data.matchList.length > 0) {
+            selector.innerHTML = '<option value="">경기를 선택하세요</option>';
+            data.matchList.forEach(match => {
+                const opt = document.createElement('option');
+                opt.value = match.fileId; // 여기서 ID가 잘 들어가는지 확인
+                opt.innerText = `${match.date} vs ${match.oppName}`;
+                selector.appendChild(opt);
+            });
+            
+            // [수정 포인트] 목록 중 가장 첫 번째 경기를 자동으로 선택하고 데이터를 불러옵니다.
+            const firstMatchId = data.matchList[0].fileId;
+            if (firstMatchId) {
+                currentFileId = firstMatchId;
+                selector.value = firstMatchId;
+                loadData('TOTAL'); // 자동으로 첫 경기 로드
             }
         }
+    } catch (err) {
+        console.error("목록 로드 실패:", err);
+    }
+}
 
         // 2. 경기 선택 시 호출되는 함수
         function changeMatch(fileId) {
