@@ -35,11 +35,13 @@
             background-color: #161b22;
             color: #58a6ff;
             border: 1px solid #30363d;
-            padding: 8px 16px;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             font-weight: bold;
             outline: none;
             cursor: pointer;
+            min-width: 200px;
         }
         #match-selector:hover { border-color: #58a6ff; }
     </style>
@@ -47,15 +49,15 @@
 <body class="p-4 md:p-8">
     <div class="max-w-[1440px] mx-auto">
         <div class="flex justify-between items-center mb-6 flex-wrap gap-4 border-b border-slate-800 pb-6">
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-4">
                     <h1 class="text-3xl font-black text-white italic uppercase tracking-tighter">Changer 기록지</h1>
-                    <span id="match-title-display" class="bg-blue-900/30 text-blue-400 text-xs font-bold px-3 py-1 rounded border border-blue-800/50">파일 로딩 중...</span>
+                    <span id="match-title-display" class="bg-blue-900/30 text-blue-400 text-xs font-bold px-3 py-1 rounded border border-blue-800/50">연결 확인 중...</span>
                 </div>
-                <div class="flex items-center gap-2 mt-2">
-                    <label class="text-xs font-bold text-slate-500 uppercase">Select Match:</label>
+                <div class="flex items-center gap-3">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Archive List</label>
                     <select id="match-selector" onchange="changeMatch(this.value)">
-                        <option value="">경기 목록을 불러오는 중...</option>
+                        <option value="">경기 목록 불러오는 중...</option>
                     </select>
                 </div>
             </div>
@@ -76,8 +78,8 @@
                 <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-xl font-black italic">TF</span><span id="our-foul-val" class="text-2xl font-black text-white">0</span></div>
             </div>
             <div class="text-center">
-                <p id="current-q-label" class="text-yellow-500 text-4xl font-black italic mb-1">TOTAL</p>
-                <p class="text-slate-600 text-xs font-bold tracking-[0.5em]">VS</p>
+                <p id="current-q-label" class="text-yellow-500 text-4xl font-black italic mb-1 uppercase">TOTAL</p>
+                <p class="text-slate-600 text-[10px] font-bold tracking-[0.6em] ml-2">VERSUS</p>
             </div>
             <div class="text-center">
                 <p class="text-red-400 font-black text-xs mb-2 tracking-widest uppercase">AWAY</p>
@@ -88,7 +90,7 @@
 
         <div class="stats-dashboard home-dashboard mb-4">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-blue-500 font-black text-xl italic italic uppercase">HOME SUMMARY</span>
+                <span class="text-blue-500 font-black text-xl italic uppercase">HOME SUMMARY</span>
                 <div class="stat-grid">
                     <div class="stat-box"><p class="stat-label">2P</p><p id="home-f-2p" class="stat-value">0/0</p><p id="home-f-2p-pct" class="stat-pct text-blue-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">3P</p><p id="home-f-3p" class="stat-value">0/0</p><p id="home-f-3p-pct" class="stat-pct text-blue-400">0%</p></div>
@@ -118,7 +120,7 @@
 
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <span class="text-red-500 font-black text-xl italic uppercase tracking-tighter">AWAY SUMMARY</span>
+                <span class="text-red-500 font-black text-xl italic uppercase">AWAY SUMMARY</span>
                 <div class="stat-grid">
                     <div class="stat-box"><p class="stat-label">2P</p><p id="opp-f-2p" class="stat-value">0/0</p><p id="opp-f-2p-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
@@ -134,8 +136,9 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbyLVTjq6lR2o3gwKkEGt5qLF4zGex-lvfYp4YMlHPIa69DvVzVZSijG9QbkRUFvxVLy1Q/exec";
-        let currentFileId = ""; // 현재 선택된 경기 파일 ID
+        // [필수] 새로운 배포 URL 반영
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxAQYCHoRTubkkBsrAI2eAxvEi3MZOBmgoEbdKluwFy2KEv_eDfdEltfY_NLvvpcq8Ewg/exec";
+        let currentFileId = ""; // 선택된 경기 파일 ID
 
         const calcPct = (m, a) => {
             const made = parseFloat(m) || 0;
@@ -143,46 +146,47 @@
             return (attempt > 0) ? Math.round((made / attempt) * 100) : 0;
         };
 
-        // 1. 경기 목록 드롭다운 데이터 불러오기
+        // 1. 경기 목록 불러오기
         async function loadMatchList() {
-    try {
-        const response = await fetch(`${BASE_API_URL}?action=get_list`);
-        const data = await response.json();
-        const selector = document.getElementById('match-selector');
-        
-        if (data.matchList && data.matchList.length > 0) {
-            selector.innerHTML = '<option value="">경기를 선택하세요</option>';
-            data.matchList.forEach(match => {
-                const opt = document.createElement('option');
-                opt.value = match.fileId; // 여기서 ID가 잘 들어가는지 확인
-                opt.innerText = `${match.date} vs ${match.oppName}`;
-                selector.appendChild(opt);
-            });
-            
-            // [수정 포인트] 목록 중 가장 첫 번째 경기를 자동으로 선택하고 데이터를 불러옵니다.
-            const firstMatchId = data.matchList[0].fileId;
-            if (firstMatchId) {
-                currentFileId = firstMatchId;
-                selector.value = firstMatchId;
-                loadData('TOTAL'); // 자동으로 첫 경기 로드
+            try {
+                const response = await fetch(`${BASE_API_URL}?action=get_list`);
+                const data = await response.json();
+                const selector = document.getElementById('match-selector');
+                
+                if (data.matchList && data.matchList.length > 0) {
+                    selector.innerHTML = '<option value="">선택하세요</option>';
+                    data.matchList.forEach(match => {
+                        const opt = document.createElement('option');
+                        opt.value = match.fileId;
+                        opt.innerText = `${match.date} vs ${match.oppName}`;
+                        selector.appendChild(opt);
+                    });
+                    
+                    // 초기값 설정 (가장 최근 경기 로드)
+                    currentFileId = data.matchList[0].fileId;
+                    selector.value = currentFileId;
+                    loadData('TOTAL');
+                } else {
+                    selector.innerHTML = '<option value="">경기 데이터 없음</option>';
+                }
+            } catch (err) {
+                console.error("목록 로드 실패:", err);
+                document.getElementById('match-selector').innerHTML = '<option value="">연결 오류</option>';
             }
         }
-    } catch (err) {
-        console.error("목록 로드 실패:", err);
-    }
-}
 
-        // 2. 경기 선택 시 호출되는 함수
+        // 2. 경기 변경 함수
         function changeMatch(fileId) {
             if (!fileId) return;
             currentFileId = fileId;
-            loadData('TOTAL'); // 새 파일의 전체 데이터 로드
+            loadData('TOTAL');
         }
 
-        // 3. 메인 데이터 로드 함수 (id 파라미터 추가)
+        // 3. 메인 데이터 로드 (쿼터 변경 포함)
         async function loadData(q) {
             if (!currentFileId) return;
 
+            // UI 업데이트
             document.querySelectorAll('.q-btn').forEach(btn => {
                 const btnText = btn.innerText === '전체' ? 'TOTAL' : btn.innerText;
                 btn.classList.toggle('active', btnText === q);
@@ -190,18 +194,17 @@
             document.getElementById('current-q-label').innerText = q;
 
             try {
-                // URL에 id(파일 ID)와 q(시트 이름)를 함께 전달
                 const response = await fetch(`${BASE_API_URL}?id=${currentFileId}&q=${q}`);
                 const data = await response.json();
 
                 if (data.error) {
-                    alert(data.error);
+                    alert("데이터 로드 오류: " + data.error);
                     return;
                 }
 
                 document.getElementById('match-title-display').innerText = data.fileName || "기록지";
 
-                // 홈팀 합계 바인딩
+                // 홈팀 합계
                 if (data.teamTotal) {
                     const t = data.teamTotal;
                     document.getElementById('our-score').innerText = t.PTS || 0;
@@ -218,7 +221,7 @@
                     document.getElementById('home-f-to').innerText = t.TO || 0;
                 }
 
-                // 상대팀 데이터 바인딩
+                // 상대팀 합계
                 if (data.opp) {
                     const o = data.opp;
                     document.getElementById('opp-score').innerText = o.PTS || 0;
@@ -236,7 +239,7 @@
                     document.getElementById('opp-f-to').innerText = o.TO || 0;
                 }
 
-                // 선수 상세 테이블 바인딩
+                // 선수 상세 테이블
                 const teamStats = data.stats || [];
                 const totalFoul = teamStats.reduce((acc, p) => acc + (parseFloat(p.PF) || 0), 0);
                 document.getElementById('our-foul-val').innerText = totalFoul;
@@ -266,10 +269,13 @@
                         </tr>
                     `;
                 }).join('');
-            } catch (err) { console.error("데이터 로드 실패:", err); }
+            } catch (err) { 
+                console.error("데이터 로드 실패:", err);
+                alert("네트워크 통신 오류가 발생했습니다.");
+            }
         }
 
-        // 페이지 로드시 경기 목록 불러오기
+        // 앱 시작 시 목록 로드
         window.onload = loadMatchList;
     </script>
 </body>
