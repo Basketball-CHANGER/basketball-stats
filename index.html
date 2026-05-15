@@ -33,7 +33,6 @@
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-[1440px] mx-auto">
-        <!-- 헤더 -->
         <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 <h1 class="text-3xl font-black text-white italic uppercase">Changer 기록지</h1>
@@ -48,7 +47,6 @@
             </div>
         </div>
 
-        <!-- 스코어보드 -->
         <div class="grid grid-cols-3 gap-4 bg-[#161b22] p-8 rounded-[32px] border border-[#30363d] items-center mb-6">
             <div class="text-center">
                 <p class="text-blue-400 font-black text-xs mb-2 uppercase tracking-widest">HOME</p>
@@ -66,7 +64,6 @@
             </div>
         </div>
 
-        <!-- HOME SUMMARY -->
         <div class="stats-dashboard home-dashboard mb-4">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <span class="text-blue-500 font-black text-xl italic uppercase">HOME SUMMARY</span>
@@ -77,12 +74,12 @@
                     <div class="stat-box"><p class="stat-label">REB</p><p id="home-f-reb" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">AST</p><p id="home-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="home-f-stl" class="stat-value">0</p></div>
+                    <div class="stat-box"><p class="stat-label">BLK</p><p id="home-f-blk" class="stat-value text-white">0</p></div>
                     <div class="stat-box"><p class="stat-label">TO</p><p id="home-f-to" class="stat-value text-red-500">0</p></div>
                 </div>
             </div>
         </div>
 
-        <!-- 상세 테이블 -->
         <div class="table-wrapper overflow-x-auto mb-6">
             <table class="w-full border-collapse min-w-[1200px]">
                 <thead>
@@ -97,7 +94,6 @@
             </table>
         </div>
 
-        <!-- AWAY SUMMARY -->
         <div id="opp-stats-footer" class="stats-dashboard away-dashboard">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <span class="text-red-500 font-black text-xl italic uppercase">AWAY SUMMARY</span>
@@ -106,8 +102,9 @@
                     <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">FT</p><p id="opp-f-ft" class="stat-value">0/0</p><p id="opp-f-ft-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">REB</p><p id="opp-f-reb" class="stat-value">0</p></div>
+                    <div class="stat-box"><p class="stat-label">AST</p><p id="opp-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="opp-f-stl" class="stat-value">0</p></div>
-                    <div class="stat-box"><p class="stat-label">BLK</p><p id="opp-f-blk" class="stat-value">0</p></div>
+                    <div class="stat-box"><p class="stat-label">BLK</p><p id="opp-f-blk" class="stat-value text-white">0</p></div>
                     <div class="stat-box"><p class="stat-label">TO</p><p id="opp-f-to" class="stat-value text-red-800">0</p></div>
                 </div>
             </div>
@@ -148,6 +145,7 @@
                     document.getElementById('home-f-reb').innerText = t.REB || 0;
                     document.getElementById('home-f-ast').innerText = t.AST || 0;
                     document.getElementById('home-f-stl').innerText = t.STL || 0;
+                    document.getElementById('home-f-blk').innerText = t.BLK || 0; // 블락 추가
                     document.getElementById('home-f-to').innerText = t.TO || 0;
                 }
 
@@ -167,6 +165,7 @@
                     document.getElementById('opp-f-ft').innerText = `${o.FTM || 0}/${o.FTA || 0}`;
                     document.getElementById('opp-f-ft-pct').innerText = `${o.FT_PCT || 0}%`;
                     document.getElementById('opp-f-reb').innerText = o.REB || 0;
+                    document.getElementById('opp-f-ast').innerText = o.AST || 0; // 어시스트 추가
                     document.getElementById('opp-f-stl').innerText = o.STL || 0;
                     document.getElementById('opp-f-blk').innerText = o.BLK || 0;
                     document.getElementById('opp-f-to').innerText = o.TO || 0;
