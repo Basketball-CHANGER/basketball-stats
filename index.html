@@ -30,17 +30,30 @@
         .stat-value { color: white; font-weight: 900; font-size: 1.4rem; line-height: 1; }
         .stat-pct { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
+        /* 필터 및 드롭다운 스타일 */
+        .filter-select {
+            background-color: #0d1117;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus, .filter-select:hover { border-color: #58a6ff; color: white; }
+        
         #match-selector {
             background-color: #161b22;
             color: #58a6ff;
             border: 1px solid #30363d;
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 8px;
             font-size: 0.85rem;
             font-weight: bold;
             outline: none;
             cursor: pointer;
-            min-width: 200px;
+            min-width: 220px;
         }
         #match-selector:hover { border-color: #58a6ff; }
     </style>
@@ -52,8 +65,26 @@
                 <div class="flex items-center gap-4">
                     <h1 class="text-3xl font-black text-white italic uppercase tracking-tighter">Changer 기록지</h1>
                 </div>
-                <div class="flex items-center gap-3">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Archive List</label>
+                
+                <div class="flex flex-wrap items-center gap-2 mt-1">
+                    <select id="filter-year" class="filter-select" onchange="filterMatches()">
+                        <option value="">연도 전체</option>
+                    </select>
+                    <select id="filter-month" class="filter-select" onchange="filterMatches()">
+                        <option value="">월 전체</option>
+                        <option value="01">1월</option><option value="02">2월</option><option value="03">3월</option>
+                        <option value="04">4월</option><option value="05">5월</option><option value="06">6월</option>
+                        <option value="07">7월</option><option value="08">8월</option><option value="09">9월</option>
+                        <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+                    </select>
+                    <select id="filter-day" class="filter-select" onchange="filterMatches()">
+                        <option value="">요일 전체</option>
+                        <option value="월">월요일</option><option value="화">화요일</option><option value="수">수요일</option>
+                        <option value="목">목요일</option><option value="금">금요일</option><option value="토">토요일</option><option value="일">일요일</option>
+                    </select>
+                    
+                    <div class="h-6 w-[1px] bg-slate-700 mx-2"></div>
+
                     <select id="match-selector" onchange="changeMatch(this.value)">
                         <option value="">경기 목록 불러오는 중...</option>
                     </select>
@@ -134,8 +165,9 @@
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbxAQYCHoRTubkkBsrAI2eAxvEi3MZOBmgoEbdKluwFy2KEv_eDfdEltfY_NLvvpcq8Ewg/exec";
-        let currentFileId = "";
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwdOumd31Uk3CAvJIgbKqHreN2Nja8epZ9pA_If8BCkIsTyS3ST3i5o1iOVwwzvo0Xu5w/exec";
+        let currentFileId = ""; 
+        let allMatches = []; // 전체 경기 목록 저장용 변수 추가
 
         const calcPct = (m, a) => {
             const made = parseFloat(m) || 0;
@@ -143,32 +175,72 @@
             return (attempt > 0) ? Math.round((made / attempt) * 100) : 0;
         };
 
+        // 1. 경기 목록 불러오기 (연도 필터 세팅 포함)
         async function loadMatchList() {
             try {
                 const response = await fetch(`${BASE_API_URL}?action=get_list`);
                 const data = await response.json();
-                const selector = document.getElementById('match-selector');
-                if (data.matchList && data.matchList.length > 0) {
-                    selector.innerHTML = '<option value="">선택하세요</option>';
-                    data.matchList.forEach(match => {
-                        const opt = document.createElement('option');
-                        opt.value = match.fileId;
-                        opt.innerText = `${match.date} vs ${match.oppName}`;
-                        selector.appendChild(opt);
-                    });
-                    currentFileId = data.matchList[0].fileId;
-                    selector.value = currentFileId;
-                    loadData('TOTAL');
-                }
-            } catch (err) { console.error("목록 로드 실패:", err); }
+                allMatches = data.matchList || [];
+                
+                // 데이터 기반으로 '연도' 필터 옵션 자동 생성
+                const yearSelect = document.getElementById('filter-year');
+                const years = [...new Set(allMatches.map(m => m.year))].sort((a,b) => b-a); // 최신 연도순
+                years.forEach(y => {
+                    const opt = document.createElement('option');
+                    opt.value = y; opt.innerText = y + "년";
+                    yearSelect.appendChild(opt);
+                });
+
+                // 초기 필터 적용 (최신순 렌더링)
+                filterMatches(); 
+            } catch (err) { 
+                console.error("목록 로드 실패:", err); 
+                document.getElementById('match-selector').innerHTML = '<option value="">연결 오류</option>';
+            }
         }
 
+        // 2. 필터 적용 및 목록 업데이트 로직
+        function filterMatches() {
+            const y = document.getElementById('filter-year').value;
+            const m = document.getElementById('filter-month').value;
+            const d = document.getElementById('filter-day').value;
+            
+            // 다중 필터링 적용
+            const filtered = allMatches.filter(match => {
+                return (!y || match.year === y) && 
+                       (!m || match.month === m) && 
+                       (!d || match.day === d);
+            });
+
+            const selector = document.getElementById('match-selector');
+            selector.innerHTML = filtered.length > 0 ? '' : '<option value="">해당 조건의 결과 없음</option>';
+            
+            filtered.forEach(match => {
+                const opt = document.createElement('option');
+                opt.value = match.fileId;
+                // 드롭다운 목록 형태: 날짜(요일) vs 상대팀명
+                opt.innerText = `${match.date}(${match.day}) vs ${match.oppName}`;
+                selector.appendChild(opt);
+            });
+
+            // 필터 후 첫 번째 항목 자동 로드
+            if (filtered.length > 0) {
+                currentFileId = filtered[0].fileId;
+                selector.value = currentFileId;
+                loadData('TOTAL');
+            } else {
+                currentFileId = ""; // 데이터가 없으면 초기화
+            }
+        }
+
+        // 3. 드롭다운 선택 변경 시 호출
         function changeMatch(fileId) {
             if (!fileId) return;
             currentFileId = fileId;
             loadData('TOTAL');
         }
 
+        // 4. 상세 데이터 로딩
         async function loadData(q) {
             if (!currentFileId) return;
             document.querySelectorAll('.q-btn').forEach(btn => {
@@ -181,8 +253,6 @@
                 const response = await fetch(`${BASE_API_URL}?id=${currentFileId}&q=${q}`);
                 const data = await response.json();
                 if (data.error) { alert("데이터 오류: " + data.error); return; }
-
-                // [수정] 파일명 배지 업데이트 코드 삭제함
 
                 if (data.teamTotal) {
                     const t = data.teamTotal;
