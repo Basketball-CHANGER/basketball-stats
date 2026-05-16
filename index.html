@@ -7,6 +7,45 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
+        
+        /* 로딩 오버레이 스타일 */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(13, 17, 23, 0.85);
+            display: none; /* 기본 숨김 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #30363d;
+            border-top: 6px solid #58a6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: #58a6ff;
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* 기존 스타일 유지 */
         .q-btn.active { 
             background-color: #238636 !important; 
             color: white !important; 
@@ -30,7 +69,6 @@
         .stat-value { color: white; font-weight: 900; font-size: 1.4rem; line-height: 1; }
         .stat-pct { font-size: 11px; font-weight: bold; margin-top: 2px; }
 
-        /* 필터 및 드롭다운 스타일 */
         .filter-select {
             background-color: #0d1117;
             color: #8b949e;
@@ -55,10 +93,15 @@
             cursor: pointer;
             min-width: 220px;
         }
-        #match-selector:hover { border-color: #58a6ff; }
     </style>
 </head>
 <body class="p-4 md:p-8">
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Fetching Records...</div>
+    </div>
+
     <div class="max-w-[1440px] mx-auto">
         <div class="flex justify-between items-center mb-6 flex-wrap gap-4 border-b border-slate-800 pb-6">
             <div class="flex flex-col gap-3">
@@ -112,7 +155,7 @@
             </div>
             <div class="text-center">
                 <p class="text-red-400 font-black text-xs mb-2 tracking-widest uppercase">AWAY</p>
-                <p id="opp-score" class="text-7xl font-black text-white leading-none mb-3">0</p>
+                <p id="locally-score" class="text-7xl font-black text-white leading-none mb-3" style="display:none;">0</p> <p id="opp-score" class="text-7xl font-black text-white leading-none mb-3">0</p>
                 <div class="flex justify-center items-baseline gap-2"><span class="text-slate-500 text-xl font-black italic">TF</span><span id="opp-foul-val" class="text-2xl font-black text-white">0</span></div>
             </div>
         </div>
@@ -167,7 +210,7 @@
     <script>
         const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwdOumd31Uk3CAvJIgbKqHreN2Nja8epZ9pA_If8BCkIsTyS3ST3i5o1iOVwwzvo0Xu5w/exec";
         let currentFileId = ""; 
-        let allMatches = []; // 전체 경기 목록 저장용 변수 추가
+        let allMatches = [];
 
         const calcPct = (m, a) => {
             const made = parseFloat(m) || 0;
@@ -175,37 +218,38 @@
             return (attempt > 0) ? Math.round((made / attempt) * 100) : 0;
         };
 
-        // 1. 경기 목록 불러오기 (연도 필터 세팅 포함)
+        const showLoading = (show) => {
+            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+        };
+
         async function loadMatchList() {
+            showLoading(true);
             try {
                 const response = await fetch(`${BASE_API_URL}?action=get_list`);
                 const data = await response.json();
                 allMatches = data.matchList || [];
                 
-                // 데이터 기반으로 '연도' 필터 옵션 자동 생성
                 const yearSelect = document.getElementById('filter-year');
-                const years = [...new Set(allMatches.map(m => m.year))].sort((a,b) => b-a); // 최신 연도순
+                const years = [...new Set(allMatches.map(m => m.year))].sort((a,b) => b-a);
                 years.forEach(y => {
                     const opt = document.createElement('option');
                     opt.value = y; opt.innerText = y + "년";
                     yearSelect.appendChild(opt);
                 });
 
-                // 초기 필터 적용 (최신순 렌더링)
                 filterMatches(); 
             } catch (err) { 
-                console.error("목록 로드 실패:", err); 
-                document.getElementById('match-selector').innerHTML = '<option value="">연결 오류</option>';
+                console.error(err); 
+            } finally {
+                showLoading(false);
             }
         }
 
-        // 2. 필터 적용 및 목록 업데이트 로직
         function filterMatches() {
             const y = document.getElementById('filter-year').value;
             const m = document.getElementById('filter-month').value;
             const d = document.getElementById('filter-day').value;
             
-            // 다중 필터링 적용
             const filtered = allMatches.filter(match => {
                 return (!y || match.year === y) && 
                        (!m || match.month === m) && 
@@ -213,36 +257,34 @@
             });
 
             const selector = document.getElementById('match-selector');
-            selector.innerHTML = filtered.length > 0 ? '' : '<option value="">해당 조건의 결과 없음</option>';
+            selector.innerHTML = filtered.length > 0 ? '' : '<option value="">결과 없음</option>';
             
             filtered.forEach(match => {
                 const opt = document.createElement('option');
                 opt.value = match.fileId;
-                // 드롭다운 목록 형태: 날짜(요일) vs 상대팀명
                 opt.innerText = `${match.date}(${match.day}) vs ${match.oppName}`;
                 selector.appendChild(opt);
             });
 
-            // 필터 후 첫 번째 항목 자동 로드
             if (filtered.length > 0) {
                 currentFileId = filtered[0].fileId;
                 selector.value = currentFileId;
                 loadData('TOTAL');
             } else {
-                currentFileId = ""; // 데이터가 없으면 초기화
+                currentFileId = "";
             }
         }
 
-        // 3. 드롭다운 선택 변경 시 호출
         function changeMatch(fileId) {
             if (!fileId) return;
             currentFileId = fileId;
             loadData('TOTAL');
         }
 
-        // 4. 상세 데이터 로딩
         async function loadData(q) {
             if (!currentFileId) return;
+            showLoading(true);
+
             document.querySelectorAll('.q-btn').forEach(btn => {
                 const btnText = btn.innerText === '전체' ? 'TOTAL' : btn.innerText;
                 btn.classList.toggle('active', btnText === q);
@@ -252,8 +294,7 @@
             try {
                 const response = await fetch(`${BASE_API_URL}?id=${currentFileId}&q=${q}`);
                 const data = await response.json();
-                if (data.error) { alert("데이터 오류: " + data.error); return; }
-
+                
                 if (data.teamTotal) {
                     const t = data.teamTotal;
                     document.getElementById('our-score').innerText = t.PTS || 0;
@@ -288,8 +329,7 @@
                 }
 
                 const teamStats = data.stats || [];
-                const totalFoul = teamStats.reduce((acc, p) => acc + (parseFloat(p.PF) || 0), 0);
-                document.getElementById('our-foul-val').innerText = totalFoul;
+                document.getElementById('our-foul-val').innerText = teamStats.reduce((acc, p) => acc + (parseFloat(p.PF) || 0), 0);
 
                 const tbody = document.getElementById('stats-body');
                 tbody.innerHTML = teamStats.map(p => {
@@ -316,7 +356,8 @@
                         </tr>
                     `;
                 }).join('');
-            } catch (err) { console.error("데이터 로드 실패:", err); }
+            } catch (err) { console.error(err); }
+            finally { showLoading(false); }
         }
 
         window.onload = loadMatchList;
