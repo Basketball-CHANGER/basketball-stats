@@ -167,7 +167,8 @@
                     <div class="stat-box"><p class="stat-label">2P</p><p id="home-f-2p" class="stat-value">0/0</p><p id="home-f-2p-pct" class="stat-pct text-blue-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">3P</p><p id="home-f-3p" class="stat-value">0/0</p><p id="home-f-3p-pct" class="stat-pct text-blue-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">FT</p><p id="home-f-ft" class="stat-value">0/0</p><p id="home-f-ft-pct" class="stat-pct text-blue-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">REB</p><p id="home-f-reb" class="stat-value">0</p></div>
+                    <!-- REB가 OR/DR로 변경되었습니다 -->
+                    <div class="stat-box"><p class="stat-label">OR/DR</p><p id="home-f-reb" class="stat-value">0/0</p></div>
                     <div class="stat-box"><p class="stat-label">AST</p><p id="home-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="home-f-stl" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">BLK</p><p id="home-f-blk" class="stat-value">0</p></div>
@@ -197,7 +198,8 @@
                     <div class="stat-box"><p class="stat-label">2P</p><p id="opp-f-2p" class="stat-value">0/0</p><p id="opp-f-2p-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">3P</p><p id="opp-f-3p" class="stat-value">0/0</p><p id="opp-f-3p-pct" class="stat-pct text-red-400">0%</p></div>
                     <div class="stat-box"><p class="stat-label">FT</p><p id="opp-f-ft" class="stat-value">0/0</p><p id="opp-f-ft-pct" class="stat-pct text-red-400">0%</p></div>
-                    <div class="stat-box"><p class="stat-label">REB</p><p id="opp-f-reb" class="stat-value">0</p></div>
+                    <!-- REB가 OR/DR로 변경되었습니다 -->
+                    <div class="stat-box"><p class="stat-label">OR/DR</p><p id="opp-f-reb" class="stat-value">0/0</p></div>
                     <div class="stat-box"><p class="stat-label">AST</p><p id="opp-f-ast" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">STL</p><p id="opp-f-stl" class="stat-value">0</p></div>
                     <div class="stat-box"><p class="stat-label">BLK</p><p id="opp-f-blk" class="stat-value">0</p></div>
@@ -208,6 +210,7 @@
     </div>
 
     <script>
+        // 만약 새 배포 주소가 변경되었다면 이 부분을 수정해주세요.
         const BASE_API_URL = "https://script.google.com/macros/s/AKfycbwdOumd31Uk3CAvJIgbKqHreN2Nja8epZ9pA_If8BCkIsTyS3ST3i5o1iOVwwzvo0Xu5w/exec";
         let currentFileId = ""; 
         let allMatches = [];
@@ -304,7 +307,10 @@
                     document.getElementById('home-f-3p-pct').innerText = `${t.TP_PCT || 0}%`;
                     document.getElementById('home-f-ft').innerText = `${t.FTM || 0}/${t.FTA || 0}`;
                     document.getElementById('home-f-ft-pct').innerText = `${t.FT_PCT || 0}%`;
-                    document.getElementById('home-f-reb').innerText = t.REB || 0;
+                    
+                    // [수정됨] 홈팀 리바운드 수치를 OR/DR 포맷으로 변경
+                    document.getElementById('home-f-reb').innerText = `${t.OR || 0}/${t.DR || 0}`;
+                    
                     document.getElementById('home-f-ast').innerText = t.AST || 0;
                     document.getElementById('home-f-stl').innerText = t.STL || 0;
                     document.getElementById('home-f-blk').innerText = t.BLK || 0;
@@ -321,7 +327,10 @@
                     document.getElementById('opp-f-3p-pct').innerText = `${o.TP_PCT || 0}%`;
                     document.getElementById('opp-f-ft').innerText = `${o.FTM || 0}/${o.FTA || 0}`;
                     document.getElementById('opp-f-ft-pct').innerText = `${o.FT_PCT || 0}%`;
-                    document.getElementById('opp-f-reb').innerText = o.REB || 0;
+                    
+                    // [수정됨] 어웨이팀 리바운드 수치를 OR/DR 포맷으로 변경
+                    document.getElementById('opp-f-reb').innerText = `${o.OR || 0}/${o.DR || 0}`;
+                    
                     document.getElementById('opp-f-ast').innerText = o.AST || 0;
                     document.getElementById('opp-f-stl').innerText = o.STL || 0;
                     document.getElementById('opp-f-blk').innerText = o.BLK || 0;
